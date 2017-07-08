@@ -1,5 +1,5 @@
 <div id="dropzone-modal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -11,7 +11,7 @@
             </div>
             <div class="modal-body">
                 <div id="actions" class="row">
-                    <div class="col-lg-7">
+                    <div class="col-md-7">
                         <!-- The fileinput-button span is used to style the file input field as button -->
                         <span class="btn btn-success fileinput-button">
                             <i class="glyphicon glyphicon-plus"></i>
@@ -27,7 +27,7 @@
                         </button>
                     </div>
 
-                    <div class="col-lg-5">
+                    <div class="col-md-5">
                         <!-- The global file processing state -->
                         <span class="fileupload-process">
                             <div id="total-progress" class="progress progress-striped active" role="progressbar"

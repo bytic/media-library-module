@@ -66,10 +66,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 $('.dz-progress').hide();
                 $('.dz-size').hide();
                 $('.dz-error-mark').hide();
-                console.log(response);
-                console.log(file);
                 cd = response;
             });
+
             this.on("addedfile", function (file) {
                 var removeButton = Dropzone.createElement("<a href=\"#\">Remove file</a>");
                 var _this = this;
@@ -77,11 +76,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     e.preventDefault();
                     e.stopPropagation();
                     _this.removeFile(file);
-                    var name = "largeFileName=" + cd.pi.largePicPath + "&smallFileName=" + cd.pi.smallPicPath;
+                    var removeData = "largeFileName=" + cd.pi.largePicPath + "&smallFileName=" + cd.pi.smallPicPath;
                     $.ajax({
                         type: 'POST',
                         url: 'DeleteImage',
-                        data: name,
+                        data: removeData,
                         dataType: 'json'
                     });
                 });
