@@ -3,5 +3,4 @@
     <?php echo translator()->translate('photos.label.title.upload'); ?>
 </button>
 
-<?php echo $this->load('modal'); ?>
-<?php echo $this->load('template'); ?>
+<?php echo $this->load('/dropzone/modal'); ?>

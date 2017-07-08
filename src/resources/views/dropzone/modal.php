@@ -7,39 +7,41 @@
                 </button>
                 <div class="modal-title">
                     <h4>Modal title</h4>
-
-                    <ul class="nav nav-pills" id="ImgTab">
-                        <li class="active"><a href="#uplod">Upload</a>
-                        </li>
-                        <li><a href="#frm-url">URL</a>
-                        </li>
-                        <li><a href="#frm-gallery">Gallery</a>
-                        </li>
-                    </ul>
                 </div>
             </div>
             <div class="modal-body">
-                <div id='content-gallery' class="tab-content">
-                    <div class="tab-pane active" id="uplod">
-                        <form action="UploadImages" class="dropzone" id="my-awesome-dropzone"
-                              enctype="multipart/form-data">
-                        </form>
+                <div id="actions" class="row">
+                    <div class="col-lg-7">
+                        <!-- The fileinput-button span is used to style the file input field as button -->
+                        <span class="btn btn-success fileinput-button">
+                            <i class="glyphicon glyphicon-plus"></i>
+                            <span>Add files...</span>
+                        </span>
+                        <button type="submit" class="btn btn-primary start">
+                            <i class="glyphicon glyphicon-upload"></i>
+                            <span>Start upload</span>
+                        </button>
+                        <button type="reset" class="btn btn-warning cancel">
+                            <i class="glyphicon glyphicon-ban-circle"></i>
+                            <span>Cancel upload</span>
+                        </button>
                     </div>
-                    <div class="tab-pane" id="frm-url">
-                        <form action="FetchFromUrl">
-                            <div class="control-group">
-                                <div class="controls form-inline">
-                                    <label for="url">URL</label>
-                                    <input type="text" class="form-control" placeholder="http://" id="url-ip"
-                                           style="width: 450px">
-                                    <input type="submit" class="btn btn-success" id="b-url">
-                                </div>
+
+                    <div class="col-lg-5">
+                        <!-- The global file processing state -->
+                        <span class="fileupload-process">
+                            <div id="total-progress" class="progress progress-striped active" role="progressbar"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100" aria-valuenow="0">
+                                <div class="progress-bar progress-bar-success" style="width:0%;"
+                                     data-dz-uploadprogress></div>
                             </div>
-                        </form>
-                        <div id="url-i-pr"></div>
+                        </span>
                     </div>
-                    <div class="tab-pane" id="frm-gallery"></div>
+
+                    <?php echo $this->load('/dropzone/template'); ?>
                 </div>
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Done</button>

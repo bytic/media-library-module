@@ -20,7 +20,7 @@ class View extends \Nip\View
     protected function generateBasePath()
     {
         return MediaModule::basePath()
-            . DIRECTORY_SEPARATOR . 'sec'
+            . DIRECTORY_SEPARATOR . 'src'
             . DIRECTORY_SEPARATOR . 'resources'
             . DIRECTORY_SEPARATOR . 'views';
     }

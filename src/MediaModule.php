@@ -25,7 +25,7 @@ class MediaModule
         if (file_exists($fullPath)) {
             return file_get_contents($fullPath);
         }
-        return;
+        return '';
     }
 
     /**
@@ -40,12 +40,12 @@ class MediaModule
      * @param HasMediaTrait $item
      * @return null|string
      */
-    public function getAdminImagesGridForModel($item)
+    public static function getAdminImagesGridForModel($item)
     {
         $images = $item->getImages();
 
         return self::loadView(
-            '/admin/gallery/images-grid.php',
+            '/admin/gallery/images-grid',
             ['item' => $item, 'images' => $images]
         );
     }
