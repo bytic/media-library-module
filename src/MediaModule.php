@@ -2,6 +2,7 @@
 
 namespace ByTIC\Modules\MediaLibrary;
 
+use ByTIC\MediaLibrary\HasMedia\HasMediaTrait;
 use ByTIC\Modules\MediaLibrary\Application\Library\View\View;
 
 /**
@@ -10,6 +11,15 @@ use ByTIC\Modules\MediaLibrary\Application\Library\View\View;
  */
 class MediaModule
 {
+
+    /**
+     * @param HasMediaTrait $item
+     */
+    public function getImagesGridForModel($item)
+    {
+        $images = $item->getImages();
+        return self::loadView('/admin/gallery/images-grid.php');
+    }
 
     /**
      * @param $path
