@@ -13,12 +13,41 @@ class MediaModule
 {
 
     /**
-     * @param HasMediaTrait $item
+     * @param $path
+     * @return null|string
      */
-    public function getImagesGridForModel($item)
+    public static function loadAssetContent($path)
+    {
+        $fullPath = self::basePath()
+            . DIRECTORY_SEPARATOR . 'resources'
+            . DIRECTORY_SEPARATOR . 'assets'
+            . $path;
+        if (file_exists($fullPath)) {
+            return file_get_contents($fullPath);
+        }
+        return;
+    }
+
+    /**
+     * @return string
+     */
+    public static function basePath()
+    {
+        return dirname(__DIR__);
+    }
+
+    /**
+     * @param HasMediaTrait $item
+     * @return null|string
+     */
+    public function getAdminImagesGridForModel($item)
     {
         $images = $item->getImages();
-        return self::loadView('/admin/gallery/images-grid.php');
+
+        return self::loadView(
+            '/admin/gallery/images-grid.php',
+            ['item' => $item, 'images' => $images]
+        );
     }
 
     /**

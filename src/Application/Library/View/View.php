@@ -2,6 +2,7 @@
 
 namespace ByTIC\Modules\MediaLibrary\Application\Library\View;
 
+use ByTIC\Modules\MediaLibrary\MediaModule;
 use Nip\Utility\Traits\SingletonTrait;
 
 /**
@@ -18,7 +19,8 @@ class View extends \Nip\View
      */
     protected function generateBasePath()
     {
-        return dirname(dirname(dirname(__DIR__)))
+        return MediaModule::basePath()
+            . DIRECTORY_SEPARATOR . 'sec'
             . DIRECTORY_SEPARATOR . 'resources'
             . DIRECTORY_SEPARATOR . 'views';
     }

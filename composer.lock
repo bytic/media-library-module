@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "bb02fc14e8791ac9f10d60c4ccf4e336",
+  "content-hash": "beb1d8e5eb9efb490b3cad605ddca1b4",
     "packages": [
         {
             "name": "bytic/common",
@@ -46,16 +46,16 @@
         },
         {
             "name": "bytic/framework",
-            "version": "1.0.2",
+          "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ByTIC/framework.git",
-                "reference": "21b45b138d96ceb41c984935d33dff4665ae86f7"
+              "reference": "debe2608460c9c23eafebf78e89d44f8cdbfdcd0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ByTIC/framework/zipball/21b45b138d96ceb41c984935d33dff4665ae86f7",
-                "reference": "21b45b138d96ceb41c984935d33dff4665ae86f7",
+              "url": "https://api.github.com/repos/ByTIC/framework/zipball/debe2608460c9c23eafebf78e89d44f8cdbfdcd0",
+              "reference": "debe2608460c9c23eafebf78e89d44f8cdbfdcd0",
                 "shasum": ""
             },
             "require": {
@@ -111,7 +111,7 @@
             ],
             "description": "Php Framework",
             "homepage": "https://github.com/ByTIC/request-detective",
-            "time": "2017-07-08T09:00:59+00:00"
+          "time": "2017-07-08T18:00:55+00:00"
         },
         {
             "name": "bytic/medialibrary",
