@@ -1,0 +1,26 @@
+{
+  "name": "bytic/media-library-module",
+  "type": "library",
+  "license": "MIT",
+  "description": "A media module for bytic library",
+  "keywords": [  ],
+  "homepage": "https://github.com/ByTIC/media-library-module",
+  "authors": [
+    {
+      "name": "Gabriel Solomon",
+      "email": "hello@gabrielsolomon.ro"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "ByTIC\\Modules\\MediaLibrary\\": "src/"
+    }
+  },
+  "require": {
+    "php": "^7.0",
+    "bytic/common": "^1.0",
+    "bytic/medialibrary": "dev-release/0.9.0"
+  },
+  "require-dev": {
+  }
+}
