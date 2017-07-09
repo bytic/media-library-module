@@ -2,5 +2,3 @@
     <img src="<?php echo asset("/images/ico/picture.png"); ?>" alt=""/>
     <?php echo translator()->translate('photos.label.title.upload'); ?>
 </button>
-
-<?php echo $this->load('/dropzone/modal'); ?>
