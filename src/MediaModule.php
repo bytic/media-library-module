@@ -2,6 +2,7 @@
 
 namespace ByTIC\Modules\MediaLibrary;
 
+use ByTIC\MediaLibrary\HasMedia\HasMediaTrait;
 use ByTIC\Modules\MediaLibrary\Application\Library\View\View;
 
 /**
@@ -10,6 +11,44 @@ use ByTIC\Modules\MediaLibrary\Application\Library\View\View;
  */
 class MediaModule
 {
+
+    /**
+     * @param $path
+     * @return null|string
+     */
+    public static function loadAssetContent($path)
+    {
+        $fullPath = self::basePath()
+            . DIRECTORY_SEPARATOR . 'resources'
+            . DIRECTORY_SEPARATOR . 'assets'
+            . $path;
+        if (file_exists($fullPath)) {
+            return file_get_contents($fullPath);
+        }
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public static function basePath()
+    {
+        return dirname(__DIR__);
+    }
+
+    /**
+     * @param HasMediaTrait $item
+     * @return null|string
+     */
+    public static function getAdminImagesGridForModel($item)
+    {
+        $images = $item->getImages();
+
+        return self::loadView(
+            '/admin/gallery/images-grid',
+            ['item' => $item, 'images' => $images]
+        );
+    }
 
     /**
      * @param $path
