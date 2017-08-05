@@ -10,8 +10,10 @@ $itemClass = isset($itemClass) ? $itemClass : 'col-md-3';
     <div class="alert alert-info nomargin"<?php echo count($images) ? ' style="display: none;"' : ''; ?>>
         <?php echo translator()->translate('photos.messages.dnx'); ?>
     </div>
-    <?php if ($images) { ?>
-        <?php foreach ($images as $image) { ?>
+    <?php if ($images) {
+    ?>
+        <?php foreach ($images as $image) {
+        ?>
             <div class="<?php echo $itemClass; ?> gallery-item<?php echo $image->isDefault() ? ' default' : ''; ?>">
                 <div class="overlay" style="display: none;"></div>
                 <img src="<?php echo $image->getFullUrl(); ?>" alt=""/>
@@ -27,7 +29,9 @@ $itemClass = isset($itemClass) ? $itemClass : 'col-md-3';
                     </a>
                 </div>
             </div>
-        <?php } ?>
-    <?php } ?>
+        <?php
+    } ?>
+    <?php
+} ?>
     <br class="clear"/>
 </div>
