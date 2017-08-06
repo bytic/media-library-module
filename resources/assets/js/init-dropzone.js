@@ -78,6 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 file.previewElement.querySelector('.dz-error-message').style.opacity = "0";
 
                 $(file.previewElement.querySelector(".cancel")).hide();
+                $(file.previewElement.querySelector(".start")).hide();
                 file.previewElement.querySelector(".delete").style.display = "inline";
             });
 
