@@ -1,12 +1,12 @@
 <?php
 
-namespace ByTIC\Modules\MediaLibrary\Tests;
+namespace ByTIC\MediaLibraryModule\Tests;
 
-use ByTIC\Modules\MediaLibrary\MediaModule;
+use ByTIC\MediaLibraryModule\MediaModule;
 
 /**
  * Class MediaModuleTest
- * @package ByTIC\Modules\MediaLibrary\Tests
+ * @package ByTIC\MediaLibraryModule\Tests
  */
 class MediaModuleTest extends AbstractTest
 {

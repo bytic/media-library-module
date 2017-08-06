@@ -13,12 +13,12 @@
   ],
   "autoload": {
     "psr-4": {
-      "ByTIC\\Modules\\MediaLibrary\\": "src/"
+      "ByTIC\\MediaLibraryModule\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "ByTIC\\Modules\\MediaLibrary\\Tests\\": "tests/src"
+      "ByTIC\\MediaLibraryModules\\Tests\\": "tests/src"
     }
   },
   "require": {

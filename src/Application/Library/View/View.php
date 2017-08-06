@@ -1,13 +1,13 @@
 <?php
 
-namespace ByTIC\Modules\MediaLibrary\Application\Library\View;
+namespace ByTIC\MediaLibraryModule\Application\Library\View;
 
-use ByTIC\Modules\MediaLibrary\MediaModule;
+use ByTIC\MediaLibraryModule\MediaModule;
 use Nip\Utility\Traits\SingletonTrait;
 
 /**
  * Class View
- * @package ByTIC\Modules\MediaLibrary\Application\Library\View
+ * @package ByTIC\MediaLibraryModule\Application\Library\View
  */
 class View extends \Nip\View
 {

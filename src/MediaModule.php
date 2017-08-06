@@ -1,13 +1,13 @@
 <?php
 
-namespace ByTIC\Modules\MediaLibrary;
+namespace ByTIC\MediaLibraryModule;
 
 use ByTIC\MediaLibrary\HasMedia\HasMediaTrait;
-use ByTIC\Modules\MediaLibrary\Application\Library\View\View;
+use ByTIC\MediaLibraryModule\Application\Library\View\View;
 
 /**
  * Class MediaModule
- * @package ByTIC\Modules\MediaLibrary
+ * @package ByTIC\MediaLibraryModule
  */
 class MediaModule
 {

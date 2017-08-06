@@ -1,6 +1,6 @@
 <?php
 
-namespace ByTIC\Modules\MediaLibrary\Tests;
+namespace ByTIC\MediaLibraryModule\Tests;
 
 use PHPUnit\Framework\TestCase;
 
