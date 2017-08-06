@@ -3,17 +3,15 @@
 use ByTIC\MediaLibrary\Collections\Collection;
 use ByTIC\MediaLibrary\Media\Media;
 
-$itemClass = isset($itemClass) ? $itemClass : 'col-md-3';
+$itemClass = isset($itemClass) ? $itemClass : 'col-md-4 col-sm-6';
 /** @var Collection|Media[] $images */
 ?>
-<div class="gallery row-fluid" id="item-gallery">
+<div class="gallery row" id="item-gallery">
     <div class="alert alert-info nomargin"<?php echo count($images) ? ' style="display: none;"' : ''; ?>>
         <?php echo translator()->translate('photos.messages.dnx'); ?>
     </div>
-    <?php if ($images) {
-    ?>
-        <?php foreach ($images as $image) {
-        ?>
+    <?php if ($images) { ?>
+        <?php foreach ($images as $image) { ?>
             <div class="<?php echo $itemClass; ?> gallery-item<?php echo $image->isDefault() ? ' default' : ''; ?>">
                 <div class="overlay" style="display: none;"></div>
                 <img src="<?php echo $image->getFullUrl(); ?>" alt=""/>
@@ -24,14 +22,11 @@ $itemClass = isset($itemClass) ? $itemClass : 'col-md-3';
                     </a>
                     <a href="javascript:" class="left set-default btn btn-primary btn-xs"
                        rel="<?php echo $image->getName(); ?>">
-                        <img src="<?php echo asset("/images/ico/accept.png"); ?>" alt=""/>
-                        Principala
+                        <span class="glyphicon glyphicon-ok-circle glyphicon-white"></span>
                     </a>
                 </div>
             </div>
-        <?php
-    } ?>
-    <?php
-} ?>
+        <?php } ?>
+    <?php } ?>
     <br class="clear"/>
 </div>
