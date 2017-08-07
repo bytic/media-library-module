@@ -5,6 +5,7 @@
     padding: 2px;
     border: 1px solid #AFCCE7;
     text-align: center;
+    margin: 0 -10px 10px;
 }
 
 .gallery-item img {

@@ -7,12 +7,14 @@ document.addEventListener("DOMContentLoaded", function () {
         MediaLibrary.removeImage(event);
     });
 
-    var MediaLibrary = function () {
-        this.$uploadModal = null;
+    var MediaLibrary = function (element) {
+        this.$panel = $(element);
+        this.$uploadModal = this.$element.find('.modal[data-role="dialog"]');
     };
 
     MediaLibrary.prototype.init = function () {
-        this.hookUploadModal('#dropzone-modal');
+        this.hookUploadModal(this.$uploadModal);
+        this.hookMediaActions();
     };
 
     MediaLibrary.prototype.hookUploadModal = function (element) {
@@ -146,4 +148,11 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
     };
+
+
+    // MediaLibrary DATA-API
+    // ==============
+    $('.medialibrary-panel').each(function () {
+        $(this).MediaLibrary();
+    });
 });

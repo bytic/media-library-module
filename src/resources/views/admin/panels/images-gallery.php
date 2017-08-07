@@ -1,41 +1,41 @@
 <?php
 /** @var \ByTIC\MediaLibrary\HasMedia\HasMediaTrait|\Nip\Records\Record $item */
+
+use ByTIC\MediaLibraryModule\MediaModule;
+
 /** @var Nip\View $viewObj */
 $uploadUrl = isset($uploadUrl) ? $uploadUrl : $viewObj->uploadURL;
 ?>
-<div class="panel panel-inverse">
-    <div class="panel-heading">
-        <div class="panel-heading-btn">
-            <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#dropzone-modal">
-                <img src="<?php echo asset("/images/ico/picture.png"); ?>" alt=""/>
-                <?php echo translator()->translate('photos.label.title.upload'); ?>
-            </button>
+<div class="medialibrary-panel">
+    <div class="panel panel-inverse">
+        <div class="panel-heading">
+            <div class="panel-heading-btn">
+                <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#dropzone-modal">
+                    <img src="<?php echo asset("/images/ico/picture.png"); ?>" alt=""/>
+                    <?php echo translator()->translate('photos.label.title.upload'); ?>
+                </button>
+            </div>
+            <h4 class="panel-title">
+                <?php echo translator()->translate('photos.label.title.singular'); ?>
+            </h4>
         </div>
-        <h4 class="panel-title">
-            <?php echo translator()->translate('photos.label.title.singular'); ?>
-        </h4>
+        <div class="panel-body">
+            <?php
+            echo MediaModule::getAdminImagesGridForModel($item);
+            ?>
+        </div>
     </div>
-    <div class="panel-body">
-        <?php
-        echo \ByTIC\MediaLibraryModule\MediaModule::getAdminImagesGridForModel($item);
-        ?>
-    </div>
+
+    <?php
+    echo MediaModule::loadView(
+        '/dropzone/modal',
+        ['formAction' => $uploadUrl]
+    );
+    ?>
 </div>
 
-
 <?php
-echo \ByTIC\MediaLibraryModule\MediaModule::loadView(
-    '/dropzone/modal',
-    ['formAction' => $uploadUrl]
-);
-
-$viewObj->Scripts()->addRaw(\ByTIC\MediaLibraryModule\MediaModule::loadAssetContent('/js/init-dropzone.js'));
-$viewObj->Scripts()->addRaw(\ByTIC\MediaLibraryModule\MediaModule::loadAssetContent('/js/media-manage.js'));
-$viewObj->StyleSheets()->addRaw(\ByTIC\MediaLibraryModule\MediaModule::loadAssetContent('/css/gallery.js'));
+$viewObj->Scripts()->addRaw(MediaModule::loadAssetContent('/js/init-dropzone.js'));
+$viewObj->Scripts()->addRaw(MediaModule::loadAssetContent('/js/media-manage.js'));
+$viewObj->StyleSheets()->addRaw(MediaModule::loadAssetContent('/css/gallery.css'));
 ?>
-<script type="text/javascript">
-    document.addEventListener("DOMContentLoaded", function () {
-        MediaLibrary.defaultMediaURL = '<?php echo $item->compileURL('AsyncSetDefaultMedia'); ?>';
-        MediaLibrary.removeMediaURL = '<?php echo $item->compileURL('AsyncRemoveMedia'); ?>';
-    });
-</script>
