@@ -59,10 +59,10 @@ class MediaModule
         $images = $item->getImages();
 
         return self::loadView(
-            '/admin/gallery/images-grid',
+            '/admin/panels/images-gallery',
             [
                 'item' => $item,
-                'view' => $view,
+                'viewObj' => $view,
                 'images' => $images
             ]
         );

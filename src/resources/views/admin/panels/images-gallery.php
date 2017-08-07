@@ -1,5 +1,7 @@
 <?php
-/** @var \ByTIC\MediaLibrary\HasMedia\HasMediaTrait $item */
+/** @var \ByTIC\MediaLibrary\HasMedia\HasMediaTrait|\Nip\Records\Record $item */
+/** @var Nip\View $viewObj */
+$uploadUrl = isset($uploadUrl) ? $uploadUrl : $viewObj->uploadURL;
 ?>
 <div class="panel panel-inverse">
     <div class="panel-heading">
@@ -24,11 +26,11 @@
 <?php
 echo \ByTIC\MediaLibraryModule\MediaModule::loadView(
     '/dropzone/modal',
-    ['formAction' => $this->uploadURL]
+    ['formAction' => $uploadUrl]
 );
 
-$view->Scripts()->addRaw(\ByTIC\MediaLibraryModule\MediaModule::loadAssetContent('/js/init-dropzone.js'));
-$view->Scripts()->addRaw(\ByTIC\MediaLibraryModule\MediaModule::loadAssetContent('/js/media-manage.js'));
+$viewObj->Scripts()->addRaw(\ByTIC\MediaLibraryModule\MediaModule::loadAssetContent('/js/init-dropzone.js'));
+$viewObj->Scripts()->addRaw(\ByTIC\MediaLibraryModule\MediaModule::loadAssetContent('/js/media-manage.js'));
 ?>
 <script type="text/javascript">
     MediaLibrary.defaultMediaURL = '<?php echo $item->compileURL('AsyncSetDefaultMedia'); ?>';
