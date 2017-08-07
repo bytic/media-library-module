@@ -51,6 +51,24 @@ class MediaModule
     }
 
     /**
+     * @param HasMediaTrait $item
+     * @return null|string
+     */
+    public static function getAdminPanelForModel($item, $view)
+    {
+        $images = $item->getImages();
+
+        return self::loadView(
+            '/admin/gallery/images-grid',
+            [
+                'item' => $item,
+                'view' => $view,
+                'images' => $images
+            ]
+        );
+    }
+
+    /**
      * @param $path
      * @param array $variables
      * @return null|string
