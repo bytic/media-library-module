@@ -1,5 +1,6 @@
 <?php
 $formAction = isset($formAction) ? $formAction : '/file-upload-test';
+$modalTitle = isset($modalTitle) ? $modalTitle : 'Media Gallery';
 ?>
 <div id="dropzone-modal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
@@ -9,7 +10,7 @@ $formAction = isset($formAction) ? $formAction : '/file-upload-test';
                     <span aria-hidden="true">&times;</span>
                 </button>
                 <div class="modal-title">
-                    <h4>Modal title</h4>
+                    <h4><?php echo $modalTitle; ?></h4>
                 </div>
             </div>
             <div class="modal-body">
@@ -46,7 +47,6 @@ $formAction = isset($formAction) ? $formAction : '/file-upload-test';
                 <form action="<?php echo $formAction; ?>" class="dropzone-gallery" enctype="multipart/form-data">
                     <?php echo $this->load('/dropzone/template'); ?>
                 </form>
-
 
             </div>
             <div class="modal-footer">

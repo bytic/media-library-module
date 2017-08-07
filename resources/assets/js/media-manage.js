@@ -7,7 +7,27 @@ document.addEventListener("DOMContentLoaded", function () {
         MediaLibrary.removeImage(event);
     });
 
-    MediaLibrary.setDefaultMedia = function (event) {
+    var MediaLibrary = function () {
+        this.$uploadModal = null;
+    };
+
+    MediaLibrary.prototype.init = function () {
+        this.hookUploadModal('#dropzone-modal');
+    };
+
+    MediaLibrary.prototype.hookUploadModal = function (element) {
+        this.$uploadModal = $(element);
+
+        this.$uploadModal.on('hidden.bs.modal', function (e) {
+            this.closeModal(e);
+        });
+    };
+
+    MediaLibrary.prototype.closeModal = function (e) {
+        console.log('test');
+    };
+
+    MediaLibrary.prototype.setDefaultMedia = function (event) {
         event.stopPropagation();
 
         var element = $(event.target);

@@ -31,8 +31,11 @@ echo \ByTIC\MediaLibraryModule\MediaModule::loadView(
 
 $viewObj->Scripts()->addRaw(\ByTIC\MediaLibraryModule\MediaModule::loadAssetContent('/js/init-dropzone.js'));
 $viewObj->Scripts()->addRaw(\ByTIC\MediaLibraryModule\MediaModule::loadAssetContent('/js/media-manage.js'));
+$viewObj->StyleSheets()->addRaw(\ByTIC\MediaLibraryModule\MediaModule::loadAssetContent('/css/gallery.js'));
 ?>
 <script type="text/javascript">
-    MediaLibrary.defaultMediaURL = '<?php echo $item->compileURL('AsyncSetDefaultMedia'); ?>';
-    MediaLibrary.removeMediaURL = '<?php echo $item->compileURL('AsyncRemoveMedia'); ?>';
+    document.addEventListener("DOMContentLoaded", function () {
+        MediaLibrary.defaultMediaURL = '<?php echo $item->compileURL('AsyncSetDefaultMedia'); ?>';
+        MediaLibrary.removeMediaURL = '<?php echo $item->compileURL('AsyncRemoveMedia'); ?>';
+    });
 </script>

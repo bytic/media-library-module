@@ -53,16 +53,16 @@
         },
         {
             "name": "bytic/framework",
-          "version": "1.0.6",
+          "version": "1.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ByTIC/framework.git",
-              "reference": "0168894ac069edd5551bdac6506e2418519b0200"
+              "reference": "368d9c65f1653c4e7ca1d75906c135c2acdd459a"
             },
             "dist": {
                 "type": "zip",
-              "url": "https://api.github.com/repos/ByTIC/framework/zipball/0168894ac069edd5551bdac6506e2418519b0200",
-              "reference": "0168894ac069edd5551bdac6506e2418519b0200",
+              "url": "https://api.github.com/repos/ByTIC/framework/zipball/368d9c65f1653c4e7ca1d75906c135c2acdd459a",
+              "reference": "368d9c65f1653c4e7ca1d75906c135c2acdd459a",
                 "shasum": ""
             },
             "require": {
@@ -87,9 +87,9 @@
                 "vlucas/phpdotenv": "^2.4"
             },
             "require-dev": {
-              "codeception/mockery-module": "^0.2",
-              "phpunit/phpunit": "^6.0",
-              "squizlabs/php_codesniffer": "^2.0"
+              "mockery/mockery": "^0.9",
+              "phpunit/phpunit": "^6.2",
+              "squizlabs/php_codesniffer": "^3.0"
             },
             "type": "library",
             "autoload": {
@@ -119,7 +119,7 @@
             ],
             "description": "Php Framework",
             "homepage": "https://github.com/ByTIC/request-detective",
-          "time": "2017-07-29T14:58:49+00:00"
+          "time": "2017-08-07T14:29:51+00:00"
         },
         {
             "name": "bytic/medialibrary",
