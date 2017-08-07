@@ -21,14 +21,17 @@ $itemClass = isset($itemClass) ? $itemClass : 'col-md-4 col-sm-6';
 
                         <a href="javascript:" class="negative right btn btn-danger btn-xs"
                            data-url="<?php echo $item->compileURL('AsyncRemoveMedia'); ?>"
-                           data-type="images">
-                           data-filename="<?php echo $image->getName(); ?>">
-                            <span class="glyphicon glyphicon-remove glyphicon-white"></span>
+                           data-type="images"
+                           data-filename="<?php echo $image->getName(); ?>"
+                        >
+                            <span class=" glyphicon glyphicon-remove glyphicon-white"></span>
                         </a>
 
                         <a href="javascript:" class="left set-default btn btn-primary btn-xs"
                            data-url="<?php echo $item->compileURL('AsyncSetDefaultMediaItem'); ?>"
-                           data-filename="<?php echo $image->getName(); ?>">
+                           data-type="images"
+                           data-filename="<?php echo $image->getName(); ?>"
+                        >
                             <span class="glyphicon glyphicon-ok-circle glyphicon-white"></span>
                         </a>
                     </div>

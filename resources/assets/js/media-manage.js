@@ -1,12 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-
-    var MediaLibrary = function (element) {
-
-    }
     var MediaLibrary = function (element) {
         this.$panel = $(element);
-        this.$uploadModal = this.$element.find('.modal[data-role="dialog"]');
+        this.$uploadModal = this.$panel.find('.modal[role="dialog"]');
+        this.init();
     };
 
     MediaLibrary.prototype.init = function () {
@@ -17,35 +14,38 @@ document.addEventListener("DOMContentLoaded", function () {
     MediaLibrary.prototype.hookUploadModal = function (element) {
         this.$uploadModal = $(element);
 
-        this.$uploadModal.on('hidden.bs.modal', function (e) {
-            this.closeModal(e);
-        });
+        this.$uploadModal.on('hidden.bs.modal', $.proxy(this.closeModal, this));
+    };
+
+    MediaLibrary.prototype.hookMediaActions = function () {
+        this.$panel.find('.gallery-item a.set-default').click($.proxy(this.setDefaultMedia, this));
+        this.$panel.find('.gallery-item a.negative').click($.proxy(this.removeMedia, this));
     };
 
     MediaLibrary.prototype.closeModal = function (e) {
-        console.log('test');
+        location.reload();
     };
 
     MediaLibrary.prototype.setDefaultMedia = function (event) {
         event.stopPropagation();
 
         var element = $(event.target);
+        var link = element.parents('a');
         var galleryItem = element.parents('.gallery-item');
         var overlay = galleryItem.find('.overlay');
 
         overlay.show().fadeTo('fast', 0.7);
 
         $.ajax({
-            url: MediaLibrary.defaultMediaURL,
+            url: link.attr('data-url'),
             type: "POST",
             data: {
-                mediaType: 'image',
-                mediaName: element.attr('rel'),
+                media_type: link.attr('data-type'),
+                media_filename: link.attr('data-filename'),
             },
-            context: document.body
+            context: this
         }).done(function (response) {
-
-            $('.gallery-item').removeClass('default');
+            this.$panel.find('.gallery-item').removeClass('default');
             galleryItem.addClass("default");
             overlay.hide();
 
@@ -57,20 +57,24 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     };
 
-    MediaLibrary.removeImage = function (event) {
+    MediaLibrary.prototype.removeMedia = function (event) {
         event.stopPropagation();
 
-        var galleryItem = $(event.target).parents('.gallery-item');
-        var element = galleryItem.find('a.negative');
+        var element = $(event.target);
+        var link = element.parents('a');
+        var galleryItem = element.parents('.gallery-item');
         var overlay = galleryItem.find('.overlay');
 
         if (confirm("Sunteti sigur(a)?")) {
             overlay.show().fadeTo('fast', 0.7);
 
             $.ajax({
-                url: MediaLibrary.removeMediaURL,
+                url: link.attr('data-url'),
                 type: "POST",
-                data: {image: element.attr('rel')},
+                data: {
+                    media_type: link.attr('data-type'),
+                    media_filename: link.attr('data-filename'),
+                },
                 context: document.body
             }).done(function (response) {
                 if (response.type == 'success') {
@@ -109,9 +113,9 @@ document.addEventListener("DOMContentLoaded", function () {
             overlay.hide();
 
             if (response.type == 'success') {
-                $.jGrowl("Imaginea a fost stabilita ca principala", {header: "Confirmare"});
+                $.jGrowl(response.message, {header: "Confirmare"});
             } else {
-                $.jGrowl("Imaginea nu a putut fi stabilita ca principala", {header: "Eroare"});
+                $.jGrowl(response.message, {header: "Eroare"});
             }
         });
     };
@@ -134,7 +138,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }).done(function (response) {
                 if (response.type == 'success') {
                     galleryItem.remove();
-                    $.jGrowl("Imaginea a fost stearsa", {header: "Confirmare"});
+                    $.jGrowl("Imaginea a fost stearsa", {header: "Confirmare", themeState: "default"});
                 } else {
                     $.jGrowl("Imaginea nu a putut fi stearsa", {header: "Eroare"});
                 }
@@ -146,13 +150,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
-
     // MediaLibrary DATA-API
     // ==============
-    $.fn.MediaLibrary = function(){
-        this.each(function(){
-            var className = $(this);
-            $(this).html($(this));
+    $.fn.MediaLibrary = function () {
+        this.each(function () {
+            new MediaLibrary(this);
         });
     };
 
