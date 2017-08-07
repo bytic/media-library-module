@@ -16,17 +16,18 @@ $itemClass = isset($itemClass) ? $itemClass : 'col-md-4 col-sm-6';
             <div class="<?php echo $itemClass; ?>">
                 <div class="gallery-item<?php echo $image->isDefault() ? ' default' : ''; ?>">
                     <div class="overlay" style="display: none;"></div>
-                    <img src="<?php echo $image->getFullUrl(); ?>" alt=""/>
+                    <img src="<?php echo $image->getFullUrl(); ?>" class="img-responsive" alt=""/>
                     <div class="buttons inline">
 
                         <a href="javascript:" class="negative right btn btn-danger btn-xs"
                            data-url="<?php echo $item->compileURL('AsyncRemoveMedia'); ?>"
+                           data-type="images">
                            data-filename="<?php echo $image->getName(); ?>">
                             <span class="glyphicon glyphicon-remove glyphicon-white"></span>
                         </a>
 
                         <a href="javascript:" class="left set-default btn btn-primary btn-xs"
-                           data-url="<?php echo $item->compileURL('AsyncSetDefaultMedia'); ?>"
+                           data-url="<?php echo $item->compileURL('AsyncSetDefaultMediaItem'); ?>"
                            data-filename="<?php echo $image->getName(); ?>">
                             <span class="glyphicon glyphicon-ok-circle glyphicon-white"></span>
                         </a>

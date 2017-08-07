@@ -1,12 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    $('.gallery-item a.set-default').click(function (event) {
-        MediaLibrary.setDefaultMedia(event);
-    });
-    $('.gallery-item a.negative').click(function (event) {
-        MediaLibrary.removeImage(event);
-    });
 
+    var MediaLibrary = function (element) {
+
+    }
     var MediaLibrary = function (element) {
         this.$panel = $(element);
         this.$uploadModal = this.$element.find('.modal[data-role="dialog"]');
@@ -152,6 +149,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // MediaLibrary DATA-API
     // ==============
+    $.fn.MediaLibrary = function(){
+        this.each(function(){
+            var className = $(this);
+            $(this).html($(this));
+        });
+    };
+
     $('.medialibrary-panel').each(function () {
         $(this).MediaLibrary();
     });
