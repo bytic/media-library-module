@@ -23,12 +23,11 @@
   },
   "require": {
     "php": "^7.0",
-    "bytic/common": "^1.0",
-    "bytic/medialibrary": "^0.9"
+    "bytic/common": "^0.9|^1.0",
+    "bytic/medialibrary": "^0.8|^0.9"
   },
   "require-dev": {
-    "squizlabs/php_codesniffer": "^3.0",
-    "phpunit/phpunit": "^6.2",
-    "mockery/mockery": "^0.9"
+    "phpunit/phpunit": "^7.0|^8.0|^9.0",
+    "mockery/mockery": "^1.0"
   }
 }
