@@ -25,7 +25,6 @@
     }
   },
   "require": {
-    "php": "^7.0",
     "bytic/common": "^0.9|^1.0",
     "bytic/medialibrary": "^0.8|^0.9"
   },

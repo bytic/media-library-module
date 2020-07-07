@@ -2,8 +2,14 @@
 
 namespace ByTIC\MediaLibraryModule\Application\Modules\AbstractModule\Controllers\Traits;
 
+use ByTIC\MediaLibrary\FileAdder\FileAdderFactory;
 use ByTIC\MediaLibrary\HasMedia\HasMediaTrait;
-use Nip\Request;
+use ByTIC\MediaLibraryModule\Controllers\Traits\Async\Covers;
+use ByTIC\MediaLibraryModule\Controllers\Traits\Async\Files;
+use ByTIC\MediaLibraryModule\Controllers\Traits\Async\Gallery;
+use ByTIC\MediaLibraryModule\Controllers\Traits\Async\Images;
+use ByTIC\MediaLibraryModule\Controllers\Traits\Async\Logos;
+use Nip\Http\Request;
 
 /**
  * Class HasMediaAsyncTrait
@@ -14,9 +20,18 @@ use Nip\Request;
  */
 trait HasMediaAsyncTrait
 {
+    use Covers;
+    use Files;
+    use Gallery;
+    use Images;
+    use Logos;
 
     public function uploadGallery()
     {
+        if (!$this->getRequest()->files->has('file')) {
+            return $this->uploadGalleryImgPicker();
+        }
+
         /** @var HasMediaTrait $item */
         $item = $this->getModelFromRequest();
 

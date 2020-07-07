@@ -2,8 +2,10 @@
 
 namespace ByTIC\MediaLibraryModule\Controllers\Traits\Async;
 
+use ByTIC\Common\Records\Record;
+use ByTIC\MediaLibrary\HasMedia\HasMediaTrait;
 use ImgPicker;
-use Nip\Request;
+use Nip\Http\Request;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
@@ -11,10 +13,16 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * @package ByTIC\MediaLibraryModule\Controllers\Traits\Async
  *
  * @method Request getRequest()
+ * @method HasMediaTrait|Record getModelFromRequest()
  */
 trait Gallery
 {
     public function uploadGallery()
+    {
+        $this->uploadGalleryImgPicker();
+    }
+
+    public function uploadGalleryImgPicker()
     {
         $item = $this->getModelFromRequest();
 
@@ -111,17 +119,20 @@ trait Gallery
             },
         ];
         if (@$_POST['action'] == 'crop') {
+            $filesystem = $item->getMedia('images')->getFilesystem();
+            $rootPath = $filesystem->getAdapter()->getPathPrefix();
+            $newMedia = $item->getMedia('images')->newMedia();
             // Image versions:
             $options['versions'] = [
                 'full' => [
-                    'upload_dir' => $item->getImageBasePath('full'),
-                    'upload_url' => $item->getImageBaseURL('full'),
+                    'upload_dir' => $rootPath.$newMedia->getBasePath('full'),
+                    'upload_url' => $filesystem->getUrl($newMedia->getBasePath('full')),
                     'max_width' => 1600,
                     'max_height' => 1600,
                 ],
                 'default' => [
-                    'upload_dir' => $item->getImageBasePath('default'),
-                    'upload_url' => $item->getImageBaseURL('default'),
+                    'upload_dir' => $rootPath.$newMedia->getBasePath('default'),
+                    'upload_url' => $filesystem->getUrl($newMedia->getBasePath('default')),
                     'max_width' => $item->getImageWidth(),
                     'crop' => $item->getImageHeight(),
                 ],
