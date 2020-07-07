@@ -25,6 +25,9 @@ trait Gallery
     public function uploadGalleryImgPicker()
     {
         $item = $this->getModelFromRequest();
+        $newMedia = $item->getMedia('images')->newMedia();
+        $minWidth = $item->getMedia('images')->getConstraint()->minWidth;
+        $minHeight = $item->getMedia('images')->getConstraint()->minHeight;
 
         $options = [
 
@@ -47,8 +50,8 @@ trait Gallery
             // Image resolution restrictions (in px):
             'max_width' => null,
             'max_height' => null,
-            'min_width' => $item->getImageWidth(),
-            'min_height' => $item->getImageHeight(),
+            'min_width' => $minWidth,
+            'min_height' => $minHeight,
 
             /**
              *    Load callback
@@ -121,20 +124,19 @@ trait Gallery
         if (@$_POST['action'] == 'crop') {
             $filesystem = $item->getMedia('images')->getFilesystem();
             $rootPath = $filesystem->getAdapter()->getPathPrefix();
-            $newMedia = $item->getMedia('images')->newMedia();
             // Image versions:
             $options['versions'] = [
                 'full' => [
-                    'upload_dir' => $rootPath.$newMedia->getBasePath('full'),
+                    'upload_dir' => $rootPath.$newMedia->getBasePath('full'). DIRECTORY_SEPARATOR,
                     'upload_url' => $filesystem->getUrl($newMedia->getBasePath('full')),
                     'max_width' => 1600,
                     'max_height' => 1600,
                 ],
                 'default' => [
-                    'upload_dir' => $rootPath.$newMedia->getBasePath('default'),
+                    'upload_dir' => $rootPath.$newMedia->getBasePath('default'). DIRECTORY_SEPARATOR,
                     'upload_url' => $filesystem->getUrl($newMedia->getBasePath('default')),
-                    'max_width' => $item->getImageWidth(),
-                    'crop' => $item->getImageHeight(),
+                    'max_width' => $minWidth,
+                    'crop' => $minHeight,
                 ],
             ];
         }

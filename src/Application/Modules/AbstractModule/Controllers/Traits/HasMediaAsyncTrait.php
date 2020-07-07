@@ -28,7 +28,7 @@ trait HasMediaAsyncTrait
 
     public function uploadGallery()
     {
-        if (!$this->getRequest()->files->has('file')) {
+        if (!$this->getRequest()->files->has('file') || $this->getRequest()->request->has('action')) {
             return $this->uploadGalleryImgPicker();
         }
 
@@ -55,11 +55,24 @@ trait HasMediaAsyncTrait
                 break;
 
         }
-        return $this->sendError("Imaginea nu a putut fi stabilita ca principala");
+        $this->sendError("Imaginea nu a putut fi stabilita ca principala");
     }
 
     public function removeMediaItem()
     {
         $item = $this->getModelFromRequest();
+
+        switch ($this->getRequest()->get('media_type')) {
+            case 'images':
+                $item->getImages()->deleteMediaByKey(
+                    $this->getRequest()->get('media_filename')
+                );
+
+                return $this->sendSuccess("Imaginea a fost stearsa");
+                break;
+
+        }
+
+        $this->sendError("Imaginea nu a putut fi stearsa");
     }
 }

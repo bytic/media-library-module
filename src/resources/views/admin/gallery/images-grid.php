@@ -20,7 +20,7 @@ $itemClass = isset($itemClass) ? $itemClass : 'col-md-4 col-sm-6';
                     <div class="buttons inline">
 
                         <a href="javascript:" class="negative right btn btn-danger btn-xs"
-                           data-url="<?php echo $item->compileURL('AsyncRemoveMedia'); ?>"
+                           data-url="<?php echo $item->compileURL('AsyncRemoveMediaItem'); ?>"
                            data-type="images"
                            data-filename="<?php echo $image->getName(); ?>"
                         >
