@@ -1,32 +1,30 @@
-document.addEventListener("DOMContentLoaded", function () {
-
-    var MediaLibrary = function (element) {
-        this.$panel = $(element);
-        this.$uploadModal = this.$panel.find('.modal[role="dialog"]');
+class MediaLibrary {
+    constructor(element) {
+        this.panel = $(element);
+        this.uploadModal = this.panel.find('.modal[role="dialog"]');
         this.init();
-    };
+    }
 
-    MediaLibrary.prototype.init = function () {
-        this.hookUploadModal(this.$uploadModal);
+    init() {
+        this.hookUploadModal(this.uploadModal);
         this.hookMediaActions();
+    }
+
+    hookUploadModal(element) {
+        this.uploadModal = $(element);
+        this.uploadModal.on('hidden.bs.modal', this.closeModal.bind(this));
     };
 
-    MediaLibrary.prototype.hookUploadModal = function (element) {
-        this.$uploadModal = $(element);
-
-        this.$uploadModal.on('hidden.bs.modal', $.proxy(this.closeModal, this));
+    hookMediaActions() {
+        this.panel.find('.gallery-item a.set-default').click($.proxy(this.setDefaultMedia, this));
+        this.panel.find('.gallery-item a.negative').click($.proxy(this.removeMedia, this));
     };
 
-    MediaLibrary.prototype.hookMediaActions = function () {
-        this.$panel.find('.gallery-item a.set-default').click($.proxy(this.setDefaultMedia, this));
-        this.$panel.find('.gallery-item a.negative').click($.proxy(this.removeMedia, this));
-    };
-
-    MediaLibrary.prototype.closeModal = function (e) {
+    closeModal(e) {
         location.reload();
     };
 
-    MediaLibrary.prototype.setDefaultMedia = function (event) {
+    setDefaultMedia(event) {
         event.stopPropagation();
 
         var element = $(event.target);
@@ -45,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             context: this
         }).done(function (response) {
-            this.$panel.find('.gallery-item').removeClass('default');
+            this.panel.find('.gallery-item').removeClass('default');
             galleryItem.addClass("default");
             overlay.hide();
 
@@ -57,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     };
 
-    MediaLibrary.prototype.removeMedia = function (event) {
+    removeMedia(event) {
         event.stopPropagation();
 
         var element = $(event.target);
@@ -91,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
-    MediaLibrary.setDefaultCover = function (event) {
+    setDefaultCover(event) {
         event.stopPropagation();
 
         var element = $(event.target);
@@ -120,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     };
 
-    MediaLibrary.removeCover = function (event) {
+    removeCover(event) {
         event.stopPropagation();
 
         var galleryItem = $(event.target).parents('.gallery-item');
@@ -149,16 +147,10 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
     };
+}
 
-    // MediaLibrary DATA-API
-    // ==============
-    $.fn.MediaLibrary = function () {
-        this.each(function () {
-            new MediaLibrary(this);
-        });
-    };
-
+document.addEventListener("DOMContentLoaded", function () {
     $('.medialibrary-panel').each(function () {
-        $(this).MediaLibrary();
+        new MediaLibrary($(this));
     });
 });
