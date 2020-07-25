@@ -1,6 +1,9 @@
 .idea/workspace.xml
 .phpunit.result.cache
 
-/vendor/
+/node_modules
+/vendor
 
 composer.lock
+
+yarn.lock

@@ -1,6 +1,7 @@
 <?php
 /** @var \ByTIC\MediaLibrary\HasMedia\HasMediaTrait|\Nip\Records\Record $item */
 
+use ByTIC\Assets\Assets;
 use ByTIC\MediaLibraryModule\MediaModule;
 
 /** @var Nip\View $viewObj */
@@ -35,7 +36,11 @@ $uploadUrl = isset($uploadUrl) ? $uploadUrl : $viewObj->uploadURL;
 </div>
 
 <?php
+$assetEntry = Assets::entry();
+if (assets_manager()->hasEntrypoint('media-library')) {
+    return;
+}
+
 $viewObj->Scripts()->addRaw(MediaModule::loadAssetContent('/js/init-dropzone.js'));
 $viewObj->Scripts()->addRaw(MediaModule::loadAssetContent('/js/media-manage.js'));
 $viewObj->StyleSheets()->addRaw(MediaModule::loadAssetContent('/css/gallery.css'));
-?>

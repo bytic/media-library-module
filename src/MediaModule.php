@@ -2,6 +2,7 @@
 
 namespace ByTIC\MediaLibraryModule;
 
+use ByTIC\Assets\Assets;
 use ByTIC\MediaLibrary\HasMedia\HasMediaTrait;
 use ByTIC\MediaLibraryModule\Application\Library\View\View;
 
@@ -12,19 +13,31 @@ use ByTIC\MediaLibraryModule\Application\Library\View\View;
 class MediaModule
 {
 
+    public static function initAssets()
+    {
+        $assetEntry = Assets::entry();
+        if (assets_manager()->hasEntrypoint('media-library')) {
+            $assetEntry->addFromWebpack('media-library');
+
+            return;
+        }
+    }
+
     /**
      * @param $path
+     *
      * @return null|string
      */
     public static function loadAssetContent($path)
     {
         $fullPath = self::basePath()
-            . DIRECTORY_SEPARATOR . 'resources'
-            . DIRECTORY_SEPARATOR . 'assets'
-            . $path;
+                    . DIRECTORY_SEPARATOR . 'resources'
+                    . DIRECTORY_SEPARATOR . 'assets'
+                    . $path;
         if (file_exists($fullPath)) {
             return file_get_contents($fullPath);
         }
+
         return '';
     }
 
@@ -38,6 +51,7 @@ class MediaModule
 
     /**
      * @param HasMediaTrait $item
+     *
      * @return null|string
      */
     public static function getAdminImagesGridForModel($item)
@@ -52,6 +66,7 @@ class MediaModule
 
     /**
      * @param HasMediaTrait $item
+     *
      * @return null|string
      */
     public static function getAdminPanelForModel($item, $view)
@@ -61,9 +76,9 @@ class MediaModule
         return self::loadView(
             '/admin/panels/images-gallery',
             [
-                'item' => $item,
+                'item'    => $item,
                 'viewObj' => $view,
-                'images' => $images
+                'images'  => $images
             ]
         );
     }
@@ -71,6 +86,7 @@ class MediaModule
     /**
      * @param $path
      * @param array $variables
+     *
      * @return null|string
      */
     public static function loadView($path, $variables = [])
