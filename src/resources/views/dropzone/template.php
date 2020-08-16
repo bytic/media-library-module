@@ -14,11 +14,11 @@
     }
 </style>
 <div class="row" id="dropzone-previews">
-    <div id="dropzone-file-template" class="col-sm-3" style="">
+    <div id="dropzone-file-template" class="col-sm-4" style="">
         <div class="file-row" style="">
             <!-- This is used as the file preview template -->
             <div class="preview">
-                <img class="img-responsive" data-dz-thumbnail/>
+                <img class="img-responsive img-fluid" data-dz-thumbnail/>
             </div>
             <div class="dz-details">
                 <div class="dz-filename"><span data-dz-name></span></div>

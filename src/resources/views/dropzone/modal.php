@@ -6,30 +6,13 @@ $modalTitle = isset($modalTitle) ? $modalTitle : 'Media Gallery';
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
+                <h4 class="modal-title"><?php echo $modalTitle; ?></h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <div class="modal-title">
-                    <h4><?php echo $modalTitle; ?></h4>
-                </div>
             </div>
             <div class="modal-body">
                 <div id="actions" class="row">
-                    <div class="col-lg-7">
-                        <!-- The fileinput-button span is used to style the file input field as button -->
-                        <span class="btn btn-success fileinput-button">
-                            <i class="glyphicon glyphicon-plus"></i>
-                            <span>Add files...</span>
-                        </span>
-                        <button type="submit" class="btn btn-primary start">
-                            <i class="glyphicon glyphicon-upload"></i>
-                            <span>Start upload</span>
-                        </button>
-                        <button type="reset" class="btn btn-warning cancel">
-                            <i class="glyphicon glyphicon-ban-circle"></i>
-                            <span>Cancel upload</span>
-                        </button>
-                    </div>
 
                     <div class="col-lg-5">
                         <!-- The global file processing state -->
@@ -50,7 +33,23 @@ $modalTitle = isset($modalTitle) ? $modalTitle : 'Media Gallery';
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Done</button>
+                <div class="w-100 dropzone-actions">
+                    <button type="button" class="btn btn-default float-right" data-dismiss="modal">Done</button>
+
+                    <!-- The fileinput-button span is used to style the file input field as button -->
+                    <span class="btn btn-success fileinput-button">
+                            <i class="fas fa-folder-open"></i>
+                            <span>Add files</span>
+                        </span>
+                    <button type="submit" class="btn btn-primary start">
+                        <i class="fas fa-upload"></i>
+                        <span>Start upload</span>
+                    </button>
+                    <button type="reset" class="btn btn-warning cancel">
+                        <i class="fas fa-window-close"></i>
+                        <span>Cancel upload</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

@@ -13,14 +13,14 @@ $uploadUrl = isset($uploadUrl) ? $uploadUrl : $viewObj->uploadURL;
             <div class="panel-heading-btn">
                 <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#dropzone-modal">
                     <i class="fas fa-upload"></i>
-                    <?php echo translator()->trans('photos.label.title.upload'); ?>
+                    <?php echo translator()->trans('covers.label.title.upload'); ?>
                 </button>
             </div>
             <h4 class="panel-title">
-                <?php echo translator()->trans('photos.label.title.singular'); ?>
+                <?php echo translator()->trans('covers.label.title.singular'); ?>
             </h4>
         </div>
-        <div class="panel-body">
+        <div class="panel-body card-body">
             <?php
             echo MediaModule::getAdminImagesGridForModel($item);
             ?>

@@ -9,25 +9,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
     Dropzone.prototype.queueButtonsObserve = function () {
         var instance = this;
-        document.querySelector("#actions .start").addEventListener("click", function () {
-            instance.enqueueFiles(instance.getFilesWithStatus(Dropzone.ADDED));
-        }, false);
-        document.querySelector("#actions .cancel").addEventListener("click", function () {
-            instance.removeAllFiles(true);
-        }, false);
+        document.querySelector(".dropzone-actions .start")
+            .addEventListener("click", function () {
+                instance.enqueueFiles(instance.getFilesWithStatus(Dropzone.ADDED));
+            }, false);
+        document.querySelector(".dropzone-actions .cancel")
+            .addEventListener("click", function () {
+                instance.removeAllFiles(true);
+            }, false);
     };
 
     Dropzone.prototype.queueButtonsState = function (state) {
         if (state === 1) {
-            document.querySelector("#actions .start").removeAttribute("disabled");
-            document.querySelector("#actions .start").style.opacity = "1";
-            document.querySelector("#actions .cancel").removeAttribute("disabled");
-            document.querySelector("#actions .cancel").style.opacity = "1";
+            document.querySelector(".dropzone-actions .start").removeAttribute("disabled");
+            document.querySelector(".dropzone-actions .start").style.opacity = "1";
+            document.querySelector(".dropzone-actions .cancel").removeAttribute("disabled");
+            document.querySelector(".dropzone-actions .cancel").style.opacity = "1";
         } else {
-            document.querySelector("#actions .start").setAttribute("disabled", "disabled");
-            document.querySelector("#actions .start").style.opacity = "0";
-            document.querySelector("#actions .cancel").setAttribute("disabled", "disabled");
-            document.querySelector("#actions .cancel").style.opacity = "0";
+            document.querySelector(".dropzone-actions .start").setAttribute("disabled", "disabled");
+            document.querySelector(".dropzone-actions .start").style.opacity = "0";
+            document.querySelector(".dropzone-actions .cancel").setAttribute("disabled", "disabled");
+            document.querySelector(".dropzone-actions .cancel").style.opacity = "0";
         }
     };
 

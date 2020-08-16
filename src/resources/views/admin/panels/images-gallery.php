@@ -20,7 +20,7 @@ $uploadUrl = isset($uploadUrl) ? $uploadUrl : $viewObj->uploadURL;
                 <?php echo translator()->trans('photos.label.title.singular'); ?>
             </h4>
         </div>
-        <div class="panel-body">
+        <div class="panel-body card-body">
             <?php
             echo MediaModule::getAdminImagesGridForModel($item);
             ?>
@@ -41,6 +41,7 @@ if (assets_manager()->hasEntrypoint('media-library')) {
     return;
 }
 
-$viewObj->Scripts()->addRaw(MediaModule::loadAssetContent('/js/init-dropzone.js'));
-$viewObj->Scripts()->addRaw(MediaModule::loadAssetContent('/js/media-manage.js'));
+$viewObj->Scripts()->addRaw(MediaModule::loadAssetContent('/js/_dropzone.min.js'));
+$viewObj->Scripts()->addRaw(MediaModule::loadAssetContent('/js/_init-dropzone.js'));
+$viewObj->Scripts()->addRaw(MediaModule::loadAssetContent('/js/_media-manage.js'));
 $viewObj->StyleSheets()->addRaw(MediaModule::loadAssetContent('/css/gallery.css'));

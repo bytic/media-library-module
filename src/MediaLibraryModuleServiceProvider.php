@@ -27,7 +27,7 @@ class MediaLibraryModuleServiceProvider extends AbstractSignatureServiceProvider
 
     public function boot()
     {
-        $this->getContainer()->get('migrations.migrator')->path(dirname(__DIR__).'/migrations/');
+        $this->registerResources();
     }
 
     protected function registerResources()
