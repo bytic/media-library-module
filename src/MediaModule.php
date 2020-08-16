@@ -54,12 +54,12 @@ class MediaModule
      *
      * @return null|string
      */
-    public static function getAdminImagesGridForModel($item)
+    public static function getAdminImagesGridForModel($item, $type = 'images')
     {
-        $images = $item->getImages();
+        $images = $item->getMedia($type);
 
         return self::loadView(
-            '/admin/gallery/images-grid',
+            '/admin/gallery/'.$type.'-grid',
             ['item' => $item, 'images' => $images]
         );
     }
@@ -69,16 +69,16 @@ class MediaModule
      *
      * @return null|string
      */
-    public static function getAdminPanelForModel($item, $view)
+    public static function getAdminPanelForModel($item, $view, $type = 'images')
     {
-        $images = $item->getImages();
+        $images = $item->getMedia($type);
 
         return self::loadView(
-            '/admin/panels/images-gallery',
+            '/admin/panels/'.$type.'-gallery',
             [
-                'item'    => $item,
+                'item' => $item,
                 'viewObj' => $view,
-                'images'  => $images
+                'images' => $images,
             ]
         );
     }
