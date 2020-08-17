@@ -43,11 +43,19 @@ class MediaLibraryCropper {
 
     _onConfirm() {
         // Get the canvas with image data from Cropper.js
-        // Can add max width here
         var canvas = this.cropper.getCroppedCanvas();
+
+        if (!this.file.hasOwnProperty('customPostParams')) {
+            this.file.customPostParams = {};
+        }
+
+        this.file.customPostParams.cropper = $.param(this.cropper.getData());
 
         // Turn the canvas into a Blob (file object without a name)
         canvas.toBlob(this._recreateThumbnail.bind(this));
+
+        // Return the file to Dropzone
+        this.done(this.file);
 
         // Remove the editor from the view
         document.body.removeChild(this.editor);
@@ -66,8 +74,8 @@ class MediaLibraryCropper {
             dragMode: 'move',
             viewMode: 2,
             aspectRatio: this.dropzone.element.dataset.aspect_ratio,
-            minCropBoxWidth: this.dropzone.element.dataset.min_width,
-            minCropBoxHeight: this.dropzone.element.dataset.min_height,
+            minCropBoxWidth: this.dropzone.element.dataset.min_width + 1,
+            minCropBoxHeight: this.dropzone.element.dataset.min_height + 1,
 
             ready: function (event) {
                 // Zoom the image to its natural size
@@ -94,12 +102,8 @@ class MediaLibraryCropper {
             this.dropzone.options.thumbnailMethod,
             false,
             function (dataURL) {
-
                 // Update the Dropzone file thumbnail
                 this.dropzone.emit('thumbnail', this.file, dataURL);
-                // Return the file to Dropzone
-                this.done(blob);
-
             }.bind(this)
         );
     }

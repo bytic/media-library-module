@@ -60,11 +60,18 @@ var dropzoneOptionsImages = {
             dzClosure.element.querySelector(".total-progress .progress-bar").style.width = progress + "%";
         });
 
-        this.on("sending", function (file) {
+        this.on("sending", function (file, xhr, formData) {
             // Show the total progress bar when upload starts
             dzClosure.element.querySelector(".total-progress").style.opacity = "1";
+
             // And disable the start button
             file.previewElement.querySelector(".start").setAttribute("disabled", "disabled");
+
+            if (file.hasOwnProperty('customPostParams')) {
+                for (var postParam in file.customPostParams) {
+                    formData.append(postParam, file.customPostParams[postParam]);
+                }
+            }
         });
 
         this.on("success", function (file, response) {

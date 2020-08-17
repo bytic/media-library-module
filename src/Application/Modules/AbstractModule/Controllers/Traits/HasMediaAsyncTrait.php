@@ -44,7 +44,14 @@ trait HasMediaAsyncTrait
 //        $constraint = $item->getMediaRepository()->getCollection('images')->getConstraint();
 
         try {
+
             $adder = FileAdderFactory::create($item, $this->getRequest()->files->get('file'));
+
+            if ($this->getRequest()->request->has('cropper'))
+            {
+                parse_str($this->getRequest()->request->get('cropper'), $copperData);
+                $adder->getMedia()->cropperData = $copperData;
+            }
             $adder->toMediaCollection($mediaType);
         } catch (FileCannotBeAdded $exception) {
             http_response_code(415);
