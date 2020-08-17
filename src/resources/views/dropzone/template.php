@@ -13,8 +13,8 @@
         margin-bottom: 0;
     }
 </style>
-<div class="row" id="dropzone-previews">
-    <div id="dropzone-file-template" class="col-sm-4" style="">
+<div class="row dropzone-previews">
+    <div class="col-sm-4 dropzone-file-template" style="">
         <div class="file-row" style="">
             <!-- This is used as the file preview template -->
             <div class="preview">

@@ -2,12 +2,14 @@ class MediaLibrary {
     constructor(element) {
         this.panel = $(element);
         this.uploadModal = this.panel.find('.modal[role="dialog"]');
+        this.formDropzone = this.panel.find('form.dropzone-gallery');
         this.init();
     }
 
     init() {
         this.hookUploadModal(this.uploadModal);
         this.hookMediaActions();
+        this.hookFormDropzone();
     }
 
     hookUploadModal(element) {
@@ -19,6 +21,10 @@ class MediaLibrary {
         this.panel.find('.gallery-item a.set-default').click($.proxy(this.setDefaultMedia, this));
         this.panel.find('.gallery-item a.negative').click($.proxy(this.removeMedia, this));
     };
+
+    hookFormDropzone() {
+        var myDropzone = createDropzone(this.formDropzone);
+    }
 
     closeModal(e) {
         location.reload();

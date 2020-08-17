@@ -21,6 +21,12 @@ class MediaModule
 
             return;
         }
+
+        Assets::entry()->scripts()->addRaw(self::loadAssetContent('/js/_dropzone.min.js'));
+        Assets::entry()->scripts()->addRaw(self::loadAssetContent('/js/_init-dropzone.js'));
+        Assets::entry()->scripts()->addRaw(self::loadAssetContent('/js/_media-manage.js'));
+        Assets::entry()->styles()->addRaw(self::loadAssetContent('/css/gallery.css'));
+
     }
 
     /**

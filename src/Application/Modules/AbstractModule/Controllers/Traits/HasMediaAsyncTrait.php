@@ -29,16 +29,20 @@ trait HasMediaAsyncTrait
     public function uploadGallery()
     {
         if (!$this->getRequest()->files->has('file') || $this->getRequest()->request->has('action')) {
-            return $this->uploadGalleryImgPicker();
+            $this->uploadGalleryImgPicker();
+
+            return;
         }
 
         /** @var HasMediaTrait $item */
         $item = $this->getModelFromRequest();
+        $mediaType = $this->getRequest()->get('media_type', 'images');
 
         /** @var \ByTIC\MediaLibrary\Validation\Constraints\ImageConstraint $constraint */
 //        $constraint = $item->getMediaRepository()->getCollection('images')->getConstraint();
+
         $adder = FileAdderFactory::create($item, $this->getRequest()->files->get('file'));
-        $adder->toMediaCollection('images');
+        $adder->toMediaCollection($mediaType);
         die();
     }
 
@@ -51,11 +55,19 @@ trait HasMediaAsyncTrait
                 $item->getImages()->persistDefaultMediaFromName(
                     $this->getRequest()->get('media_filename')
                 );
-                return $this->sendSuccess("Imaginea a fost stabilita ca principala");
+                $this->sendSuccess("Imaginea a fost stabilita ca principala");
                 break;
 
+            case 'covers':
+                $item->getCovers()->persistDefaultMediaFromName(
+                    $this->getRequest()->get('media_filename')
+                );
+                $this->sendSuccess("Imaginea a fost stabilita ca principala");
+                break;
+
+            default:
+                $this->sendError("Imaginea nu a putut fi stabilita ca principala");
         }
-        $this->sendError("Imaginea nu a putut fi stabilita ca principala");
     }
 
     public function removeMediaItem()
@@ -68,11 +80,18 @@ trait HasMediaAsyncTrait
                     $this->getRequest()->get('media_filename')
                 );
 
-                return $this->sendSuccess("Imaginea a fost stearsa");
+                $this->sendSuccess("Imaginea a fost stearsa");
                 break;
 
-        }
+            case 'covers':
+                $item->getCovers()->deleteMediaByKey(
+                    $this->getRequest()->get('media_filename')
+                );
 
-        $this->sendError("Imaginea nu a putut fi stearsa");
+                $this->sendSuccess("Imaginea a fost stearsa");
+                break;
+            default:
+                $this->sendError("Imaginea nu a putut fi stearsa");
+        }
     }
 }
