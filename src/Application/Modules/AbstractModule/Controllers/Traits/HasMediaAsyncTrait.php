@@ -2,6 +2,8 @@
 
 namespace ByTIC\MediaLibraryModule\Application\Modules\AbstractModule\Controllers\Traits;
 
+use ByTIC\MediaLibrary\Exceptions\FileCannotBeAdded;
+use ByTIC\MediaLibrary\Exceptions\FileCannotBeAdded\FileUnacceptableForCollection;
 use ByTIC\MediaLibrary\FileAdder\FileAdderFactory;
 use ByTIC\MediaLibrary\HasMedia\HasMediaTrait;
 use ByTIC\MediaLibraryModule\Controllers\Traits\Async\Covers;
@@ -41,8 +43,18 @@ trait HasMediaAsyncTrait
         /** @var \ByTIC\MediaLibrary\Validation\Constraints\ImageConstraint $constraint */
 //        $constraint = $item->getMediaRepository()->getCollection('images')->getConstraint();
 
-        $adder = FileAdderFactory::create($item, $this->getRequest()->files->get('file'));
-        $adder->toMediaCollection($mediaType);
+        try {
+            $adder = FileAdderFactory::create($item, $this->getRequest()->files->get('file'));
+            $adder->toMediaCollection($mediaType);
+        } catch (FileCannotBeAdded $exception) {
+            http_response_code(415);
+            header('Content-Type: application/json; charset=utf-8');
+            $output = ['error' => $exception->getMessage()];
+            if ($exception instanceof FileUnacceptableForCollection) {
+                $output['error'] .= ': '. $exception->violations->getMessageString();
+            }
+            echo json_encode($output);
+        }
         die();
     }
 

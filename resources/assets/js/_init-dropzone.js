@@ -1,5 +1,3 @@
-var dropzoneOptionsImages = {};
-
 Dropzone.autoDiscover = false;
 
 Dropzone.prototype.queueButtonsInit = function () {
@@ -37,7 +35,7 @@ Dropzone.prototype.queueButtonsState = function (state) {
     }
 };
 
-dropzoneOptionsImages = {
+var dropzoneOptionsImages = {
     thumbnailWidth: 300,
     thumbnailHeight: 300,
     parallelUploads: 20,
@@ -90,8 +88,20 @@ dropzoneOptionsImages = {
     }
 }
 
+var dropzoneOptionsImagesWithCropper =  Object.assign(
+    dropzoneOptionsImages,
+    {
+        transformFile: function (file, done) {
+            var cropper = new MediaLibraryCropper(this, file, done);
+            cropper.init();
+        }
+    }
+);
+
+
 function createDropzone(element) {
 
+    var options = dropzoneOptionsImagesWithCropper;
     // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument
     var previewNode = element.find(".dropzone-file-template")[0];
     previewNode.id = "";
@@ -99,10 +109,10 @@ function createDropzone(element) {
     var previewTemplate = previewNode.parentNode.innerHTML;
     previewNode.parentNode.removeChild(previewNode);
 
-    dropzoneOptionsImages.previewTemplate = previewTemplate;
-    dropzoneOptionsImages.previewsContainer = element.find(".dropzone-previews")[0];
+    options.previewTemplate = previewTemplate;
+    options.previewsContainer = element.find(".dropzone-previews")[0];
 
-    dropzoneOptionsImages.clickable = element.find(".fileinput-button")[0];
+    options.clickable = element.find(".fileinput-button")[0];
 
-    return new Dropzone(element[0], dropzoneOptionsImages);
+    return new Dropzone(element[0], options);
 }

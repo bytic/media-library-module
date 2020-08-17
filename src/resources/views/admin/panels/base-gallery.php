@@ -7,6 +7,7 @@ use ByTIC\MediaLibraryModule\MediaModule;
 $uploadUrl = isset($uploadUrl) ? $uploadUrl : $viewObj->uploadURL;
 $type = isset($type) ? $type : 'images';
 $modalId = isset($modalId) ? $modalId : 'dropzone-modal-'.$type;
+$constraint = $item->getMediaRepository()->getCollection($type)->getConstraint();
 ?>
 <div class="medialibrary-panel">
     <div class="panel panel-inverse card card-inverse">
@@ -35,6 +36,7 @@ $modalId = isset($modalId) ? $modalId : 'dropzone-modal-'.$type;
             'formAction' => $uploadUrl,
             'modalId' => $modalId,
             'type' => $type,
+            'constraint' => $constraint,
         ]
     );
     ?>

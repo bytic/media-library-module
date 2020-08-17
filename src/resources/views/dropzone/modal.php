@@ -1,12 +1,23 @@
+
 <?php
+
+use ByTIC\MediaLibrary\Validation\Constraints\ImageConstraint;
+
 $formAction = isset($formAction) ? $formAction : '/file-upload-test';
 $type = isset($type) ? $type : 'images';
 $modalTitle = isset($modalTitle) ? $modalTitle : 'Media Gallery';
 $modalId = isset($modalId) ? $modalId : 'dropzone-modal';
+
+/** @var ImageConstraint $constraint */
+$constraint = isset($constraint) && $constraint instanceof ImageConstraint ? $constraint : false;
 ?>
 
-<form action="<?php echo $formAction; ?>" method="post" class="dropzone-gallery" enctype="multipart/form-data">
-    <input type="hidden" name="media_type" value="<?php echo $type; ?>" />
+<form action="<?php echo $formAction; ?>" method="post" class="dropzone-gallery" enctype="multipart/form-data"
+      data-min_width="<?php echo $constraint->minWidth; ?>"
+      data-min_height="<?php echo $constraint->minHeight; ?>"
+      data-aspect_ratio="<?php echo $constraint->minWidth / $constraint->minHeight; ?>"
+>
+    <input type="hidden" name="media_type" value="<?php echo $type; ?>"/>
 
     <div id="<?php echo $modalId; ?>" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="dialog">
