@@ -1,4 +1,5 @@
 import createDropzone from './_init-dropzone';
+import Modal from 'bootstrap';
 
 class MediaLibrary {
     constructor(element) {
@@ -35,9 +36,8 @@ class MediaLibrary {
     setDefaultMedia(event) {
         event.stopPropagation();
 
-        var element = $(event.target);
-        var link = element.parents('a');
-        var galleryItem = element.parents('.gallery-item');
+        var link = $(event.currentTarget);
+        var galleryItem = link.parents('.gallery-item');
         var overlay = galleryItem.find('.overlay');
 
         overlay.show().fadeTo('fast', 0.7);
@@ -66,9 +66,8 @@ class MediaLibrary {
     removeMedia(event) {
         event.stopPropagation();
 
-        var element = $(event.target);
-        var link = element.parents('a');
-        var galleryItem = element.parents('.gallery-item');
+        var link = $(event.currentTarget);
+        var galleryItem = link.parents('.gallery-item');
         var overlay = galleryItem.find('.overlay');
 
         if (confirm("Sunteti sigur(a)?")) {

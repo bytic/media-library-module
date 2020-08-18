@@ -76,8 +76,8 @@ export default class MediaLibraryCropper {
             dragMode: 'move',
             viewMode: 2,
             aspectRatio: this.dropzone.element.dataset.aspect_ratio,
-            minCropBoxWidth: this.dropzone.element.dataset.min_width + 1,
-            minCropBoxHeight: this.dropzone.element.dataset.min_height + 1,
+            minCropBoxWidth: parseInt(this.dropzone.element.dataset.min_width) + 1,
+            minCropBoxHeight: parseInt(this.dropzone.element.dataset.min_height) + 1,
 
             ready: function (event) {
                 // Zoom the image to its natural size
