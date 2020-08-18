@@ -8,7 +8,6 @@ namespace ByTIC\MediaLibraryModule\Controllers\Traits\Async;
  */
 trait Images
 {
-
     public function uploadImage()
     {
         $item = $this->getModelFromRequest();

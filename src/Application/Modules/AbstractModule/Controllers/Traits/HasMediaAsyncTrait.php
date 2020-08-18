@@ -44,11 +44,9 @@ trait HasMediaAsyncTrait
 //        $constraint = $item->getMediaRepository()->getCollection('images')->getConstraint();
 
         try {
-
             $adder = FileAdderFactory::create($item, $this->getRequest()->files->get('file'));
 
-            if ($this->getRequest()->request->has('cropper'))
-            {
+            if ($this->getRequest()->request->has('cropper')) {
                 parse_str($this->getRequest()->request->get('cropper'), $copperData);
                 $adder->getMedia()->cropperData = $copperData;
             }
@@ -58,7 +56,7 @@ trait HasMediaAsyncTrait
             header('Content-Type: application/json; charset=utf-8');
             $output = ['error' => $exception->getMessage()];
             if ($exception instanceof FileUnacceptableForCollection) {
-                $output['error'] .= ': '. $exception->violations->getMessageString();
+                $output['error'] .= ': ' . $exception->violations->getMessageString();
             }
             echo json_encode($output);
         }

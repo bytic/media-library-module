@@ -2,4 +2,4 @@
 
 $type = 'covers';
 
-require __DIR__.'/base-grid.php';
+require __DIR__ . '/base-grid.php';

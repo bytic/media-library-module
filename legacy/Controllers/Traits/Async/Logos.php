@@ -8,7 +8,6 @@ namespace ByTIC\MediaLibraryModule\Controllers\Traits\Async;
  */
 trait Logos
 {
-
     public function uploadLogo()
     {
         $item = $this->getModelFromRequest();
