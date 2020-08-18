@@ -1,4 +1,6 @@
-class MediaLibraryCropper {
+import Cropper from 'cropperjs';
+
+export default class MediaLibraryCropper {
 
     constructor(dropzone, file, done) {
         this.dropzone = dropzone;

@@ -1,3 +1,6 @@
+import Dropzone from 'dropzone';
+import MediaLibraryCropper from './_init-cropper';
+
 Dropzone.autoDiscover = false;
 
 Dropzone.prototype.queueButtonsInit = function () {
@@ -106,7 +109,7 @@ var dropzoneOptionsImagesWithCropper =  Object.assign(
 );
 
 
-function createDropzone(element) {
+export default function createDropzone(element) {
 
     var options = dropzoneOptionsImagesWithCropper;
     // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument

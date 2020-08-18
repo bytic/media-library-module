@@ -1,3 +1,5 @@
+import createDropzone from './_init-dropzone';
+
 class MediaLibrary {
     constructor(element) {
         this.panel = $(element);
