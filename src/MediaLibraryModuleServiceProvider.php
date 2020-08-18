@@ -32,13 +32,13 @@ class MediaLibraryModuleServiceProvider extends AbstractSignatureServiceProvider
 
     protected function registerResources()
     {
-        $folder = __DIR__.'/resources/lang/';
+        $folder = __DIR__ . '/resources/lang/';
         $languages = $this->getContainer()->get('translation.languages');
 
         $translator = $this->getContainer()->get('translator');
 
         foreach ($languages as $language) {
-            $path = $folder.$language;
+            $path = $folder . $language;
             if (is_dir($path)) {
                 $translator->addResource('php', $path, $language);
             }

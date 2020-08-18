@@ -40,14 +40,14 @@ class ImgPicker
      * @param array $error_messages
      * @return void
      */
-    function __construct($options = array(), $error_messages = array())
+    public function __construct($options = array(), $error_messages = array())
     {
         $this->options = array(
             // Upload directory path:
-            'upload_dir' => dirname(__FILE__).'/files/',
+            'upload_dir' => dirname(__FILE__) . '/files/',
 
             // Upload directory url:
-            'upload_url' => $this->getFullUrl().'/files/',
+            'upload_url' => $this->getFullUrl() . '/files/',
 
             // Accepted file types:
             'accept_file_types' => 'png|jpg|jpeg|gif',
@@ -226,7 +226,7 @@ class ImgPicker
                 $dst_h = $src_h / $src_w * $width;
             }
 
-            $dst_path = $this->getUploadPath(md5($filename).'.'.$filetype);
+            $dst_path = $this->getUploadPath(md5($filename) . '.' . $filetype);
 
             $this->resizeImage($filepath, $dst_path, 0, 0, $dst_w, $dst_h, $src_w, $src_h);
 
@@ -236,7 +236,7 @@ class ImgPicker
             }
 
             header('Content-Type: image/jpeg');
-            header('Content-Length: '.filesize($dst_path));
+            header('Content-Length: ' . filesize($dst_path));
             readfile($dst_path);
             @unlink($dst_path);
         }
@@ -276,7 +276,7 @@ class ImgPicker
 
         $file = $this->handleFileUpload(
             @$upload['tmp_name'],
-            @$upload['name'] == 'blob' ? $this->getRandFilename().'.jpg' : @$upload['name'],
+            @$upload['name'] == 'blob' ? $this->getRandFilename() . '.jpg' : @$upload['name'],
             @$upload['size'],
             @$upload['error']
         );
@@ -364,7 +364,7 @@ class ImgPicker
             return $this->generateResponse(array('error' => $this->getErrorMessage('not_exists')));
         }
 
-        if (!preg_match('/.('.$this->options['accept_file_types'].')+$/i', $image->name)) {
+        if (!preg_match('/.(' . $this->options['accept_file_types'] . ')+$/i', $image->name)) {
             return;
         }
 
@@ -391,7 +391,7 @@ class ImgPicker
         $dst_h = $src_h;
 
         $tmp = clone $image;
-        $tmp->path = $this->getUploadPath(md5($tmp->name).'.'.$tmp->type);
+        $tmp->path = $this->getUploadPath(md5($tmp->name) . '.' . $tmp->type);
 
         @copy($image->path, $tmp->path);
 
@@ -536,7 +536,7 @@ class ImgPicker
             return false;
         }
 
-        if (!preg_match('/.('.$this->options['accept_file_types'].')+$/i', $file->name)) {
+        if (!preg_match('/.(' . $this->options['accept_file_types'] . ')+$/i', $file->name)) {
             $file->error = $this->getErrorMessage('accept_file_types');
 
             return false;
@@ -555,22 +555,22 @@ class ImgPicker
 
         if ($max_width || $max_height || $min_width || $min_height) {
             if ($max_width && $file->width > $max_width) {
-                $file->error = $this->getErrorMessage('max_width').$max_width.'px';
+                $file->error = $this->getErrorMessage('max_width') . $max_width . 'px';
 
                 return false;
             }
             if ($max_height && $file->height > $max_height) {
-                $file->error = $this->getErrorMessage('max_height').$max_height.'px';
+                $file->error = $this->getErrorMessage('max_height') . $max_height . 'px';
 
                 return false;
             }
             if ($min_width && $file->width < $min_width) {
-                $file->error = $this->getErrorMessage('min_width').$min_width.'px';
+                $file->error = $this->getErrorMessage('min_width') . $min_width . 'px';
 
                 return false;
             }
             if ($min_height && $file->height < $min_height) {
-                $file->error = $this->getErrorMessage('min_height').$min_height.'px';
+                $file->error = $this->getErrorMessage('min_height') . $min_height . 'px';
 
                 return false;
             }
@@ -597,7 +597,7 @@ class ImgPicker
             }
         }
 
-        return $upload_dir.$filename;
+        return $upload_dir . $filename;
     }
 
     /**
@@ -618,7 +618,7 @@ class ImgPicker
             }
         }
 
-        return $upload_url.$filename;
+        return $upload_url . $filename;
     }
 
     /**
@@ -631,11 +631,11 @@ class ImgPicker
         $https = !empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'on') === 0;
 
         return
-            ($https ? 'https://' : 'http://').
-            (!empty($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').
-            (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ($_SERVER['SERVER_NAME'].
+            ($https ? 'https://' : 'http://') .
+            (!empty($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'] . '@' : '') .
+            (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ($_SERVER['SERVER_NAME'] .
                 ($https && $_SERVER['SERVER_PORT'] === 443 ||
-                $_SERVER['SERVER_PORT'] === 80 ? '' : ':'.$_SERVER['SERVER_PORT']))).
+                $_SERVER['SERVER_PORT'] === 80 ? '' : ':' . $_SERVER['SERVER_PORT']))) .
             substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
     }
 
@@ -663,7 +663,7 @@ class ImgPicker
             return $filename;
         }
 
-        return str_replace('.'.$ext, "-$version.$ext", $filename);
+        return str_replace('.' . $ext, "-$version.$ext", $filename);
     }
 
     /**
@@ -691,7 +691,7 @@ class ImgPicker
      */
     public function getRandFilename()
     {
-        return md5(time().rand());
+        return md5(time() . rand());
     }
 
     /**
@@ -886,7 +886,7 @@ class ImgPicker
         $index = isset($matches[1]) ? intval($matches[1]) + 1 : 1;
         $ext = isset($matches[2]) ? $matches[2] : '';
 
-        return ' ('.$index.')'.$ext;
+        return ' (' . $index . ')' . $ext;
     }
 
     protected function getConfigBytes($val)
@@ -896,8 +896,10 @@ class ImgPicker
         switch ($last) {
             case 'g':
                 $val *= 1024;
+                // no break
             case 'm':
                 $val *= 1024;
+                // no break
             case 'k':
                 $val *= 1024;
         }

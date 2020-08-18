@@ -82,7 +82,7 @@ trait Gallery
              * @return void
              */
             'upload_start' => function ($image, $instance) {
-                $image->name = '~toCropFP'.$item->ID.'-'.rand(1000, 4000).'.'.$image->type;
+                $image->name = '~toCropFP' . $item->ID . '-' . rand(1000, 4000) . '.' . $image->type;
             },
 
             /**
@@ -103,7 +103,7 @@ trait Gallery
              * @return void
              */
             'crop_start' => function ($image, $instance) {
-                $image->name = sha1(microtime()).'.'.$image->type;
+                $image->name = sha1(microtime()) . '.' . $image->type;
             },
 
             /**
@@ -117,7 +117,7 @@ trait Gallery
                 foreach (['full', 'default'] as $version) {
                     $filename = $instance->getVersionFilename($image->name, $version);
                     $filepath = $instance->getUploadPath($filename, $version);
-                    rename($filepath, str_replace('-'.$version.'.', '.', $filepath));
+                    rename($filepath, str_replace('-' . $version . '.', '.', $filepath));
                 }
             },
         ];
@@ -127,13 +127,13 @@ trait Gallery
             // Image versions:
             $options['versions'] = [
                 'full' => [
-                    'upload_dir' => $rootPath.$newMedia->getBasePath('full'). DIRECTORY_SEPARATOR,
+                    'upload_dir' => $rootPath . $newMedia->getBasePath('full') . DIRECTORY_SEPARATOR,
                     'upload_url' => $filesystem->getUrl($newMedia->getBasePath('full')),
                     'max_width' => 1600,
                     'max_height' => 1600,
                 ],
                 'default' => [
-                    'upload_dir' => $rootPath.$newMedia->getBasePath('default'). DIRECTORY_SEPARATOR,
+                    'upload_dir' => $rootPath . $newMedia->getBasePath('default') . DIRECTORY_SEPARATOR,
                     'upload_url' => $filesystem->getUrl($newMedia->getBasePath('default')),
                     'max_width' => $minWidth,
                     'crop' => $minHeight,
@@ -142,8 +142,8 @@ trait Gallery
         }
 
         if (intval($_SERVER['CONTENT_LENGTH']) > 0 && count($_POST) === 0) {
-            $maxSize = round(($this->getRequest()->server->getMaxFileSize() / 1048576), 2).'MB';
-            $this->response['error'] = 'File to big. Max size ['.$maxSize.']';
+            $maxSize = round(($this->getRequest()->server->getMaxFileSize() / 1048576), 2) . 'MB';
+            $this->response['error'] = 'File to big. Max size [' . $maxSize . ']';
 
             return $this->_output();
         }

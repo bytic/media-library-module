@@ -12,7 +12,6 @@ use ByTIC\MediaLibraryModule\Application\Library\View\View;
  */
 class MediaModule
 {
-
     public static function initAssets()
     {
         $assetEntry = Assets::entry();
@@ -31,7 +30,6 @@ class MediaModule
         Assets::entry()->styles()->addRaw(self::loadAssetContent('/css/dropzone.min.css'));
         Assets::entry()->styles()->addRaw(self::loadAssetContent('/css/cropper.min.css'));
         Assets::entry()->styles()->addRaw(self::loadAssetContent('/css/gallery.css'));
-
     }
 
     /**
@@ -70,7 +68,7 @@ class MediaModule
         $images = $item->getMedia($type);
 
         return self::loadView(
-            '/admin/gallery/'.$type.'-grid',
+            '/admin/gallery/' . $type . '-grid',
             ['item' => $item, 'images' => $images]
         );
     }
@@ -85,7 +83,7 @@ class MediaModule
         $images = $item->getMedia($type);
 
         return self::loadView(
-            '/admin/panels/'.$type.'-gallery',
+            '/admin/panels/' . $type . '-gallery',
             [
                 'item' => $item,
                 'viewObj' => $view,

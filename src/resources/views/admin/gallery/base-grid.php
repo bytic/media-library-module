@@ -11,7 +11,7 @@ $type = isset($type) ? $type : 'images';
 ?>
 <div class="gallery row" id="item-gallery">
     <div class="alert alert-info nomargin"<?php echo count($images) ? ' style="display: none;"' : ''; ?>>
-        <?php echo translator()->trans($type.'.messages.dnx'); ?>
+        <?php echo translator()->trans($type . '.messages.dnx'); ?>
     </div>
     <?php if ($images) { ?>
         <?php foreach ($images as $image) { ?>
