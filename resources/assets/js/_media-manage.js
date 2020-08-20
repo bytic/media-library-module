@@ -1,22 +1,25 @@
 import createDropzone from './_init-dropzone';
-import Modal from 'bootstrap';
+// import Modal from 'bootstrap';
+$ = window.$;
 
 class MediaLibrary {
     constructor(element) {
         this.panel = $(element);
+
         this.uploadModal = this.panel.find('.modal[role="dialog"]');
+        this.uploadModal.modal({show: false});
+
         this.formDropzone = this.panel.find('form.dropzone-gallery');
         this.init();
     }
 
     init() {
-        this.hookUploadModal(this.uploadModal);
+        this.hookUploadModal();
         this.hookMediaActions();
         this.hookFormDropzone();
     }
 
-    hookUploadModal(element) {
-        this.uploadModal = $(element);
+    hookUploadModal() {
         this.uploadModal.on('hidden.bs.modal', this.closeModal.bind(this));
     };
 
