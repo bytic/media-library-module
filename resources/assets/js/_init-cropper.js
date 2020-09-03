@@ -12,16 +12,26 @@ export default class MediaLibraryCropper {
         this._createImage();
         this._createCropper();
 
-        console.log(this);
-
         this.editor = new MediaLibraryCropperEditor(this,this.image);
         this.editor.init();
     }
 
+    destroy()
+    {
+        this.editor.destroy();
+    }
+
     zoom(value)
     {
-        console.log(this);
         this.cropper.zoom(value)
+    }
+
+    _onCancel() {
+
+        // Remove the file
+        this.dropzone.removeFile(this.file);
+
+        this.destroy();
     }
 
     _onConfirm() {
@@ -40,7 +50,7 @@ export default class MediaLibraryCropper {
         // Return the file to Dropzone
         this.done(this.file);
 
-        this.editor.destroy();
+        this.destroy();
     }
 
     _createImage() {
@@ -134,12 +144,15 @@ class MediaLibraryCropperEditor {
         buttonToolbar.style.justifyContent = 'center';
         buttonToolbar.appendChild(this._createButtonGroupZoom());
         buttonToolbar.appendChild(this._createButtonGroupConfirm());
+        buttonToolbar.appendChild(this._createButtonGroupCancel());
 
         var buttonToolbarContainer = document.createElement('div');
         buttonToolbarContainer.style.position = 'absolute';
         buttonToolbarContainer.style.left = '0%';
-        buttonToolbarContainer.style.top = '10px';
+        buttonToolbarContainer.style.top = '0';
+        buttonToolbarContainer.style.padding = '15px 0';
         buttonToolbarContainer.style.width = '100%';
+        buttonToolbarContainer.style.backgroundColor = 'rgba(0,0,0,.5)';
         buttonToolbarContainer.style.zIndex = 9999;
         buttonToolbarContainer.className = 'w-100 d-flex justify-content-center';
 
@@ -152,7 +165,9 @@ class MediaLibraryCropperEditor {
         var buttonGroup = document.createElement('div');
         buttonGroup.className = 'btn-group btn-group-lg mr-2';
         buttonGroup.style.marginLeft = '20px';
+
         buttonGroup.appendChild(this._createButtonConfirm());
+
         return buttonGroup;
     }
 
@@ -160,9 +175,30 @@ class MediaLibraryCropperEditor {
         // Create confirm button at the top left of the viewport
         var btn = document.createElement('button');
         btn.className = 'btn btn-primary';
-        btn.textContent = 'Confirm';
+        btn.textContent = 'Salveaza';
 
         btn.addEventListener('click', this.cropper._onConfirm.bind(this.cropper));
+
+        return btn;
+    }
+
+    _createButtonGroupCancel() {
+        var buttonGroup = document.createElement('div');
+        buttonGroup.className = 'btn-group btn-group-lg mr-2';
+        buttonGroup.style.marginLeft = '20px';
+
+        buttonGroup.appendChild(this._createButtonCancel());
+
+        return buttonGroup;
+    }
+
+    _createButtonCancel() {
+        // Create confirm button at the top left of the viewport
+        var btn = document.createElement('button');
+        btn.className = 'btn btn-danger';
+        btn.textContent = 'Renunta';
+
+        btn.addEventListener('click', this.cropper._onCancel.bind(this.cropper));
 
         return btn;
     }
