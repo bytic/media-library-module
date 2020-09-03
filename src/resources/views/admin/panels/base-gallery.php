@@ -12,15 +12,15 @@ $constraint = $item->getMediaRepository()->getCollection($type)->getConstraint()
 <div class="medialibrary-panel">
     <div class="panel panel-inverse card card-inverse">
         <div class="panel-heading card-header">
-            <h4 class="panel-title card-title">
-                <?php echo translator()->trans($type . '.label.title.singular'); ?>
-            </h4>
             <div class="panel-heading-btn card-header-btn">
                 <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#<?php echo $modalId; ?>">
                     <i class="fas fa-upload"></i>
                     <?php echo translator()->trans($type . '.label.title.upload'); ?>
                 </button>
             </div>
+            <h4 class="panel-title card-title">
+                <?php echo translator()->trans($type . '.label.title.singular'); ?>
+            </h4>
         </div>
         <div class="panel-body card-body">
             <?php

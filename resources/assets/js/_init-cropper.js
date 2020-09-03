@@ -9,38 +9,19 @@ export default class MediaLibraryCropper {
     }
 
     init() {
-        this._createEditor();
-        this._createButton();
         this._createImage();
         this._createCropper();
+
+        console.log(this);
+
+        this.editor = new MediaLibraryCropperEditor(this,this.image);
+        this.editor.init();
     }
 
-    _createEditor() {
-        // Create the image editor overlay
-        var editor = document.createElement('div');
-        editor.style.position = 'fixed';
-        editor.style.left = 0;
-        editor.style.right = 0;
-        editor.style.top = 0;
-        editor.style.bottom = 0;
-        editor.style.zIndex = 9999;
-        editor.style.backgroundColor = '#000';
-        document.body.appendChild(editor);
-        this.editor = editor;
-    }
-
-    _createButton() {
-        // Create confirm button at the top left of the viewport
-        var buttonConfirm = document.createElement('button');
-        buttonConfirm.style.position = 'absolute';
-        buttonConfirm.style.left = '50%';
-        buttonConfirm.style.top = '10px';
-        buttonConfirm.style.zIndex = 9999;
-        buttonConfirm.className = 'btn btn-primary';
-        buttonConfirm.textContent = 'Confirm';
-        this.editor.appendChild(buttonConfirm);
-
-        buttonConfirm.addEventListener('click', this._onConfirm.bind(this));
+    zoom(value)
+    {
+        console.log(this);
+        this.cropper.zoom(value)
     }
 
     _onConfirm() {
@@ -59,15 +40,13 @@ export default class MediaLibraryCropper {
         // Return the file to Dropzone
         this.done(this.file);
 
-        // Remove the editor from the view
-        document.body.removeChild(this.editor);
+        this.editor.destroy();
     }
 
     _createImage() {
         // Create an image node for Cropper.js
         this.image = new Image();
         this.image.src = URL.createObjectURL(this.file);
-        this.editor.appendChild(this.image);
     }
 
     _createCropper() {
@@ -81,15 +60,15 @@ export default class MediaLibraryCropper {
 
             ready: function (event) {
                 // Zoom the image to its natural size
-                cropper.zoomTo(1);
+                // cropper.zoomTo(1);
             },
 
-            zoom: function (event) {
-                // Keep the image in its natural size
-                if (event.detail.oldRatio === 1) {
-                    event.preventDefault();
-                }
-            }
+            // zoom: function (event) {
+            //     // Keep the image in its natural size
+            //     if (event.detail.oldRatio === 1) {
+            //         event.preventDefault();
+            //     }
+            // }
         });
 
         this.cropper = cropper;
@@ -108,5 +87,114 @@ export default class MediaLibraryCropper {
                 this.dropzone.emit('thumbnail', this.file, dataURL);
             }.bind(this)
         );
+    }
+}
+
+class MediaLibraryCropperEditor {
+    constructor(cropper, image) {
+        this.cropper = cropper;
+        this.image = image;
+    }
+
+    init() {
+        this._createEditor();
+        this._createImage();
+        this._createButtonToolbar();
+    }
+
+    destroy() {
+        // Remove the editor from the view
+        document.body.removeChild(this.editor);
+    }
+
+    _createImage()
+    {
+        this.editor.appendChild(this.image);
+    }
+
+    _createEditor() {
+        // Create the image editor overlay
+        var editor = document.createElement('div');
+        editor.style.position = 'fixed';
+        editor.style.left = 0;
+        editor.style.right = 0;
+        editor.style.top = 0;
+        editor.style.bottom = 0;
+        editor.style.zIndex = 9999;
+        editor.style.backgroundColor = '#000';
+        document.body.appendChild(editor);
+        this.editor = editor;
+    }
+
+    _createButtonToolbar() {
+        // Create confirm button at the top left of the viewport
+        var buttonToolbar = document.createElement('div');
+        buttonToolbar.className = 'btn-toolbar';
+        buttonToolbar.style.display = 'flex';
+        buttonToolbar.style.justifyContent = 'center';
+        buttonToolbar.appendChild(this._createButtonGroupZoom());
+        buttonToolbar.appendChild(this._createButtonGroupConfirm());
+
+        var buttonToolbarContainer = document.createElement('div');
+        buttonToolbarContainer.style.position = 'absolute';
+        buttonToolbarContainer.style.left = '0%';
+        buttonToolbarContainer.style.top = '10px';
+        buttonToolbarContainer.style.width = '100%';
+        buttonToolbarContainer.style.zIndex = 9999;
+        buttonToolbarContainer.className = 'w-100 d-flex justify-content-center';
+
+        buttonToolbarContainer.appendChild(buttonToolbar);
+
+        this.editor.appendChild(buttonToolbarContainer);
+    }
+
+    _createButtonGroupConfirm() {
+        var buttonGroup = document.createElement('div');
+        buttonGroup.className = 'btn-group btn-group-lg mr-2';
+        buttonGroup.style.marginLeft = '20px';
+        buttonGroup.appendChild(this._createButtonConfirm());
+        return buttonGroup;
+    }
+
+    _createButtonConfirm() {
+        // Create confirm button at the top left of the viewport
+        var btn = document.createElement('button');
+        btn.className = 'btn btn-primary';
+        btn.textContent = 'Confirm';
+
+        btn.addEventListener('click', this.cropper._onConfirm.bind(this.cropper));
+
+        return btn;
+    }
+
+    _createButtonGroupZoom() {
+        var buttonGroup = document.createElement('div');
+        buttonGroup.className = 'btn-group mr-2';
+        buttonGroup.style.marginTop = '5px';
+        buttonGroup.appendChild(this._createButtonZoom(0.1));
+        buttonGroup.appendChild(this._createButtonZoom(-0.1));
+        return buttonGroup;
+    }
+
+    _createButtonZoom(value) {
+        // Create confirm button at the top left of the viewport
+        var btn = document.createElement('button');
+        btn.className = 'btn btn-secondary';
+
+        var icon = document.createElement('i');
+        if (value > 0) {
+            icon.className = "fas fa-search-plus"
+            btn.textContent = ' Zoom In';
+        } else {
+            icon.className = "fas fa-search-minus"
+            btn.textContent = ' Zoom Out';
+        }
+        btn.prepend(icon);
+
+        btn.addEventListener('click', function () {
+            this.cropper.zoom(value);
+        }.bind(this));
+
+        return btn;
     }
 }
