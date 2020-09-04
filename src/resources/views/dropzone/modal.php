@@ -23,12 +23,24 @@ $constraint = isset($constraint) && $constraint instanceof ImageConstraint ? $co
         <div class="modal-dialog modal-lg" role="dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title"><?php echo $modalTitle; ?></h4>
+                    <h4 class="modal-title" style="display: inline-block">
+                        <?php echo $modalTitle; ?>
+                    </h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
+                    <div class="alert alert-info" id="status">
+                        Imaginile incarcate trebuie sa respecte urmatoarele conditii:
+                        <ul>
+                            <li>Extensii permise: <b>.jpg, .jpeg, .png</b></li>
+                            <li>Dimensiune maxima per fisier: <b><?php echo max_upload(); ?></b></li>
+                            <li>Rezolutie minima:
+                                <b><?php echo $constraint->minWidth.'x'.$constraint->minHeight.'px'; ?></b>
+                            </li>
+                        </ul>
+                    </div>
                     <!-- The global file processing state -->
                     <div class="total-progress">
                         <div class="progress">
