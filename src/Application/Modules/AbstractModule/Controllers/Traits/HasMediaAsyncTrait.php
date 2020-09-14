@@ -66,17 +66,12 @@ trait HasMediaAsyncTrait
     public function setDefaultMediaItem()
     {
         $item = $this->getModelFromRequest();
-
-        switch ($this->getRequest()->get('media_type')) {
+        $type = $this->getRequest()->get('media_type');
+        switch ($type) {
             case 'images':
-                $item->getImages()->persistDefaultMediaFromName(
-                    $this->getRequest()->get('media_filename')
-                );
-                $this->sendSuccess("Imaginea a fost stabilita ca principala");
-                break;
-
             case 'covers':
-                $item->getCovers()->persistDefaultMediaFromName(
+            case 'logos':
+                $item->getMedia($type)->persistDefaultMediaFromName(
                     $this->getRequest()->get('media_filename')
                 );
                 $this->sendSuccess("Imaginea a fost stabilita ca principala");
@@ -90,18 +85,13 @@ trait HasMediaAsyncTrait
     public function removeMediaItem()
     {
         $item = $this->getModelFromRequest();
+        $type = $this->getRequest()->get('media_type');
 
         switch ($this->getRequest()->get('media_type')) {
             case 'images':
-                $item->getImages()->deleteMediaByKey(
-                    $this->getRequest()->get('media_filename')
-                );
-
-                $this->sendSuccess("Imaginea a fost stearsa");
-                break;
-
             case 'covers':
-                $item->getCovers()->deleteMediaByKey(
+            case 'logos':
+                $item->getMedia($type)->deleteMediaByKey(
                     $this->getRequest()->get('media_filename')
                 );
 

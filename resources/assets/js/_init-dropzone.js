@@ -43,11 +43,27 @@ var dropzoneOptionsImages = {
     thumbnailHeight: 300,
     parallelUploads: 20,
     autoQueue: false, // Make sure the files aren't queued until manually added
+    constraint: {
+        minWidth: 0,
+        minHeight: 0,
+    },
 
     init: function () {
         var dzClosure = this;
 
         this.queueButtonsInit();
+
+        this.on("thumbnail", function (file) {
+            var constraint = this.options.constraint;
+
+            // Do the dimension checks you want to do
+            if (file.width < constraint.minWidth || file.height < constraint.minHeight) {
+                file.doRejection()
+            }
+            else {
+                file.doAccept();
+            }
+        });
 
         this.on("addedfile", function (file) {
             // Hookup the start button
@@ -95,7 +111,28 @@ var dropzoneOptionsImages = {
             dzClosure.element.querySelector(".total-progress").style.opacity = "0";
             this.queueButtonsState(0);
         });
+    },
+
+    // Instead of directly accepting / rejecting the file, setup two
+    // functions on the file that can be called later to accept / reject
+    // the file.
+    accept: function (file, done) {
+        file.doAccept = done;
+        file.doRejection = function () {
+
+            // And disable the start button
+
+            $(file.previewElement.querySelector(".start")).hide();
+            $(file.previewElement.querySelector(".dz-progress")).hide();
+
+            done("Invalid dimension.");
+        };
+
+        // Of course you could also just put the `done` function in the file
+        // and call it either with or without error in the `thumbnail` event
+        // callback, but I think that this is cleaner.
     }
+
 }
 
 var dropzoneOptionsImagesWithCropper =  Object.assign(
@@ -112,6 +149,11 @@ var dropzoneOptionsImagesWithCropper =  Object.assign(
 export default function createDropzone(element) {
 
     var options = dropzoneOptionsImagesWithCropper;
+
+    options.constraint.minWidth = parseInt(element.data('min_width'));
+    options.constraint.minHeight = parseInt(element.data('min_height'));
+    options.acceptedFiles = element.data('accepted_files');
+
     // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument
     var previewNode = element.find(".dropzone-file-template")[0];
     previewNode.id = "";

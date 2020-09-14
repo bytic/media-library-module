@@ -10,12 +10,15 @@ $modalId = isset($modalId) ? $modalId : 'dropzone-modal';
 
 /** @var ImageConstraint $constraint */
 $constraint = isset($constraint) && $constraint instanceof ImageConstraint ? $constraint : false;
+$mimeTypes = (array)$constraint->mimeTypes;
+$mimeTypesString = implode(',', $mimeTypes);
 ?>
 
 <form action="<?php echo $formAction; ?>" method="post" class="dropzone-gallery" enctype="multipart/form-data"
       data-min_width="<?php echo $constraint->minWidth; ?>"
       data-min_height="<?php echo $constraint->minHeight; ?>"
       data-aspect_ratio="<?php echo $constraint->minWidth / $constraint->minHeight; ?>"
+      data-accepted_files="<?php echo $mimeTypesString; ?>"
 >
     <input type="hidden" name="media_type" value="<?php echo $type; ?>"/>
 
@@ -31,7 +34,7 @@ $constraint = isset($constraint) && $constraint instanceof ImageConstraint ? $co
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="alert alert-info" id="status">
+                    <div class="alert alert-info">
                         Imaginile incarcate trebuie sa respecte urmatoarele conditii:
                         <ul>
                             <li>Extensii permise: <b>.jpg, .jpeg, .png</b></li>
@@ -40,6 +43,13 @@ $constraint = isset($constraint) && $constraint instanceof ImageConstraint ? $co
                                 <b><?php echo $constraint->minWidth.'x'.$constraint->minHeight.'px'; ?></b>
                             </li>
                         </ul>
+                    </div>
+                    <div class="fallback"> <!-- this is the fallback if JS isn't working -->
+                        <input name="file-fallback" type="file" multiple
+                               accept="<?php echo $mimeTypesString; ?>"/>
+                    </div>
+
+                    <div class="alert alert-info" id="status">
                     </div>
                     <!-- The global file processing state -->
                     <div class="total-progress">
