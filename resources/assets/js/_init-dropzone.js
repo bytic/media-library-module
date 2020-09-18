@@ -43,10 +43,6 @@ var dropzoneOptionsImages = {
     thumbnailHeight: 300,
     parallelUploads: 20,
     autoQueue: false, // Make sure the files aren't queued until manually added
-    constraint: {
-        minWidth: 0,
-        minHeight: 0,
-    },
 
     init: function () {
         var dzClosure = this;
@@ -56,11 +52,12 @@ var dropzoneOptionsImages = {
         this.on("thumbnail", function (file) {
             var constraint = this.options.constraint;
 
+            console.log(constraint);
+
             // Do the dimension checks you want to do
             if (file.width < constraint.minWidth || file.height < constraint.minHeight) {
                 file.doRejection()
-            }
-            else {
+            } else {
                 file.doAccept();
             }
         });
@@ -135,7 +132,7 @@ var dropzoneOptionsImages = {
 
 }
 
-var dropzoneOptionsImagesWithCropper =  Object.assign(
+var dropzoneOptionsImagesWithCropper = Object.assign(
     dropzoneOptionsImages,
     {
         transformFile: function (file, done) {
@@ -148,11 +145,13 @@ var dropzoneOptionsImagesWithCropper =  Object.assign(
 
 export default function createDropzone(element) {
 
-    var options = dropzoneOptionsImagesWithCropper;
+    let options = Object.assign({}, dropzoneOptionsImagesWithCropper);
 
-    options.constraint.minWidth = parseInt(element.data('min_width'));
-    options.constraint.minHeight = parseInt(element.data('min_height'));
     options.acceptedFiles = element.data('accepted_files');
+    options.constraint = {
+        minWidth: parseInt(element.data('min_width')),
+        minHeight: parseInt(element.data('min_height')),
+    };
 
     // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument
     var previewNode = element.find(".dropzone-file-template")[0];
