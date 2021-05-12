@@ -29,7 +29,9 @@ $mimeTypesString = implode(',', $mimeTypes);
                     <h4 class="modal-title" style="display: inline-block">
                         <?php echo $modalTitle; ?>
                     </h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="btn-close close" aria-label="Close"
+                            data-dismiss="modal" data-bs-dismiss="modal"
+                    >
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -64,7 +66,10 @@ $mimeTypesString = implode(',', $mimeTypes);
                 </div>
                 <div class="modal-footer">
                     <div class="w-100 dropzone-actions">
-                        <button type="button" class="btn btn-default float-right" data-dismiss="modal">Done</button>
+                        <button type="button" class="btn btn-outline-secondary btn-default float-right float-end"
+                                data-dismiss="modal" data-bs-dismiss="modal">
+                            Done
+                        </button>
 
                         <!-- The fileinput-button span is used to style the file input field as button -->
                         <span class="btn btn-success fileinput-button">
