@@ -42,7 +42,7 @@ $mimeTypesString = implode(',', $mimeTypes);
                             <li>Extensii permise: <b>.jpg, .jpeg, .png</b></li>
                             <li>Dimensiune maxima per fisier: <b><?php echo max_upload(); ?></b></li>
                             <li>Rezolutie minima:
-                                <b><?php echo $constraint->minWidth.'x'.$constraint->minHeight.'px'; ?></b>
+                                <b><?php echo $constraint->minWidth . 'x' . $constraint->minHeight . 'px'; ?></b>
                             </li>
                         </ul>
                     </div>

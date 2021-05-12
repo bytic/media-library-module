@@ -34,13 +34,13 @@ $constraint = $item->getMediaRepository()->getCollection($type)->getConstraint()
 
     <?php
     echo MediaModule::loadView(
-        '/dropzone/modal',
-        [
+                '/dropzone/modal',
+                [
             'formAction' => $uploadUrl,
             'modalId' => $modalId,
             'type' => $type,
             'constraint' => $constraint,
         ]
-    );
+            );
     ?>
 </div>
