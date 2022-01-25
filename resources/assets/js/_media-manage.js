@@ -1,5 +1,5 @@
 import createDropzone from './_init-dropzone';
-// import Modal from 'bootstrap';
+
 $ = window.$;
 
 class MediaLibrary {
@@ -7,7 +7,6 @@ class MediaLibrary {
         this.panel = $(element);
 
         this.uploadModal = this.panel.find('.modal[role="dialog"]');
-        this.uploadModal.modal({show: false});
 
         this.formDropzone = this.panel.find('form.dropzone-gallery');
         this.init();
