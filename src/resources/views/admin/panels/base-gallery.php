@@ -1,16 +1,20 @@
 <?php
-/** @var \ByTIC\MediaLibrary\HasMedia\HasMediaTrait|\Nip\Records\Record $item */
+declare(strict_types=1);
 
+/** @var HasMediaTrait|Record $item */
+
+use ByTIC\MediaLibrary\HasMedia\HasMediaTrait;
 use ByTIC\MediaLibraryModule\MediaModule;
+use Nip\Records\Record;
 
 /** @var Nip\View $viewObj */
-$uploadUrl = isset($uploadUrl) ? $uploadUrl : $viewObj->uploadURL;
-$type = isset($type) ? $type : 'images';
-$modalId = isset($modalId) ? $modalId : 'dropzone-modal-' . $type;
+$uploadUrl = $uploadUrl ?? $viewObj->uploadURL;
+$type = $type ?? 'images';
+$modalId = $modalId ?? 'dropzone-modal-' . $type;
 $constraint = $item->getMediaRepository()->getCollection($type)->getConstraint();
 ?>
 <div class="medialibrary-panel">
-    <div class="panel panel-inverse card card-inverse">
+    <div class="panel card">
         <div class="panel-heading card-header">
             <h4 class="panel-title card-title">
                 <?php echo translator()->trans($type . '.label.title.singular'); ?>
@@ -26,21 +30,19 @@ $constraint = $item->getMediaRepository()->getCollection($type)->getConstraint()
             </div>
         </div>
         <div class="panel-body card-body">
-            <?php
-            echo MediaModule::getAdminImagesGridForModel($item, $type);
-            ?>
+            <?= MediaModule::getAdminImagesGridForModel($item, $type); ?>
         </div>
     </div>
 
     <?php
     echo MediaModule::loadView(
-                '/dropzone/modal',
-                [
+        '/dropzone/modal',
+        [
             'formAction' => $uploadUrl,
             'modalId' => $modalId,
             'type' => $type,
             'constraint' => $constraint,
         ]
-            );
+    );
     ?>
 </div>
