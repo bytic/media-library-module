@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace ByTIC\MediaLibraryModule;
 
@@ -32,7 +33,7 @@ class MediaLibraryModuleServiceProvider extends AbstractSignatureServiceProvider
 
     protected function registerResources()
     {
-        $folder = __DIR__ . '/resources/lang/';
+        $folder = dirname(__DIR__) . '/resources/lang/';
         $languages = $this->getContainer()->get('translation.languages');
 
         $translator = $this->getContainer()->get('translator');

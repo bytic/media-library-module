@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace ByTIC\MediaLibraryModule\Application\Library\View;
 
@@ -12,6 +13,12 @@ use Nip\Utility\Traits\SingletonTrait;
 class View extends \Nip\View
 {
     use SingletonTrait;
+
+    public function initFinder()
+    {
+        parent::initFinder();
+        $this->prependPath($this->generateBasePath());
+    }
 
     /** @noinspection PhpMissingParentCallCommonInspection
      *
