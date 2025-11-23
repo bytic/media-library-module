@@ -16,4 +16,17 @@ class MediaLibraryModuleServiceProvider extends AbstractSignatureServiceProvider
     {
         return dirname(__DIR__) . '/resources/lang/';
     }
+
+    public function boot()
+    {
+    }
+
+    public function provides(): array
+    {
+        return [];
+    }
+
+    public function register()
+    {
+    }
 }
