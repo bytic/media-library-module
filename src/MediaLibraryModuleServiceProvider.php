@@ -11,38 +11,9 @@ use Nip\Container\ServiceProviders\Providers\BootableServiceProviderInterface;
  */
 class MediaLibraryModuleServiceProvider extends AbstractSignatureServiceProvider implements BootableServiceProviderInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function provides()
+
+    protected function translationsPath(): string
     {
-        return [];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
-    {
-    }
-
-    public function boot()
-    {
-        $this->registerResources();
-    }
-
-    protected function registerResources()
-    {
-        $folder = dirname(__DIR__) . '/resources/lang/';
-        $languages = $this->getContainer()->get('translation.languages');
-
-        $translator = $this->getContainer()->get('translator');
-
-        foreach ($languages as $language) {
-            $path = $folder . $language;
-            if (is_dir($path)) {
-                $translator->addResource('php', $path, $language);
-            }
-        }
+        return dirname(__DIR__) . '/resources/lang/';
     }
 }
