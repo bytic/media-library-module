@@ -12,80 +12,53 @@ export default class MediaLibraryCropper {
         this._createImage();
         this._createCropper();
 
-        this.editor = new MediaLibraryCropperEditor(this,this.image);
+        this.editor = new MediaLibraryCropperEditor(this, this.image);
         this.editor.init();
     }
 
-    destroy()
-    {
+    destroy() {
         this.editor.destroy();
     }
 
-    zoom(value)
-    {
-        this.cropper.zoom(value)
+    zoom(value) {
+        this.cropper.zoom(value);
     }
 
     _onCancel() {
-
-        // Remove the file
         this.dropzone.removeFile(this.file);
-
         this.destroy();
     }
 
     _onConfirm() {
-        // Get the canvas with image data from Cropper.js
         var canvas = this.cropper.getCroppedCanvas();
 
         if (!this.file.hasOwnProperty('customPostParams')) {
             this.file.customPostParams = {};
         }
 
-        this.file.customPostParams.cropper = $.param(this.cropper.getData());
+        this.file.customPostParams.cropper = new URLSearchParams(this.cropper.getData()).toString();
 
-        // Turn the canvas into a Blob (file object without a name)
         canvas.toBlob(this._recreateThumbnail.bind(this));
-
-        // Return the file to Dropzone
         this.done(this.file);
-
         this.destroy();
     }
 
     _createImage() {
-        // Create an image node for Cropper.js
         this.image = new Image();
         this.image.src = URL.createObjectURL(this.file);
     }
 
     _createCropper() {
-        // Create Cropper.js
-        var cropper = new Cropper(this.image, {
+        this.cropper = new Cropper(this.image, {
             dragMode: 'move',
             viewMode: 2,
-            aspectRatio: this.dropzone.element.dataset.aspect_ratio,
-            minCropBoxWidth: parseInt(this.dropzone.element.dataset.min_width) + 1,
-            minCropBoxHeight: parseInt(this.dropzone.element.dataset.min_height) + 1,
-
-            ready: function (event) {
-                // Zoom the image to its natural size
-                // cropper.zoomTo(1);
-            },
-
-            // zoom: function (event) {
-            //     // Keep the image in its natural size
-            //     if (event.detail.oldRatio === 1) {
-            //         event.preventDefault();
-            //     }
-            // }
+            aspectRatio: parseFloat(this.dropzone.element.dataset.aspect_ratio) || NaN,
+            minCropBoxWidth: parseInt(this.dropzone.element.dataset.min_width, 10) + 1,
+            minCropBoxHeight: parseInt(this.dropzone.element.dataset.min_height, 10) + 1,
         });
-
-        this.cropper = cropper;
     }
 
     _recreateThumbnail(blob) {
-        // Create a new Dropzone file thumbnail
         this.dropzone.createThumbnail(
             blob,
             this.dropzone.options.thumbnailWidth,
@@ -93,7 +66,6 @@ export default class MediaLibraryCropper {
             this.dropzone.options.thumbnailMethod,
             false,
             function (dataURL) {
-                // Update the Dropzone file thumbnail
                 this.dropzone.emit('thumbnail', this.file, dataURL);
             }.bind(this)
         );
@@ -104,133 +76,124 @@ class MediaLibraryCropperEditor {
     constructor(cropper, image) {
         this.cropper = cropper;
         this.image = image;
+        this._keyHandler = this._onKeyDown.bind(this);
     }
 
     init() {
         this._createEditor();
         this._createImage();
-        this._createButtonToolbar();
+        this._createToolbar();
+        document.addEventListener('keydown', this._keyHandler);
     }
 
     destroy() {
-        // Remove the editor from the view
-        document.body.removeChild(this.editor);
+        document.removeEventListener('keydown', this._keyHandler);
+        if (this.editor && this.editor.parentNode) {
+            document.body.removeChild(this.editor);
+        }
     }
 
-    _createImage()
-    {
-        this.editor.appendChild(this.image);
+    _onKeyDown(e) {
+        if (e.key === 'Escape') {
+            this.cropper._onCancel();
+        } else if (e.key === 'Enter') {
+            this.cropper._onConfirm();
+        }
+    }
+
+    _createImage() {
+        this.editor.querySelector('.mlc-image-container').appendChild(this.image);
     }
 
     _createEditor() {
-        // Create the image editor overlay
         var editor = document.createElement('div');
-        editor.style.position = 'fixed';
-        editor.style.left = 0;
-        editor.style.right = 0;
-        editor.style.top = 0;
-        editor.style.bottom = 0;
-        editor.style.zIndex = 9999;
-        editor.style.backgroundColor = '#000';
+        editor.setAttribute('role', 'dialog');
+        editor.setAttribute('aria-modal', 'true');
+        editor.setAttribute('aria-label', 'Image Cropper');
+        editor.style.cssText = [
+            'position:fixed',
+            'inset:0',
+            'z-index:10000',
+            'background:#111',
+            'display:flex',
+            'flex-direction:column',
+        ].join(';');
+
+        editor.innerHTML = `
+            <div class="mlc-toolbar" style="
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                padding:10px 16px;
+                background:rgba(0,0,0,0.85);
+                border-bottom:1px solid rgba(255,255,255,0.1);
+                flex-shrink:0;
+                gap:8px;
+                flex-wrap:wrap;
+            ">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="color:#fff;font-size:0.85rem;font-weight:600;letter-spacing:0.5px;opacity:0.8;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
+                        Crop Image
+                    </span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    <div class="mlc-zoom-group" style="display:flex;gap:4px;">
+                        <button type="button" class="mlc-btn mlc-btn-secondary mlc-zoom-in" title="Zoom in (scroll up)" style="
+                            padding:6px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);
+                            background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;font-size:0.8rem;
+                            display:flex;align-items:center;gap:5px;white-space:nowrap;
+                        ">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                            Zoom In
+                        </button>
+                        <button type="button" class="mlc-btn mlc-btn-secondary mlc-zoom-out" title="Zoom out (scroll down)" style="
+                            padding:6px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);
+                            background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;font-size:0.8rem;
+                            display:flex;align-items:center;gap:5px;white-space:nowrap;
+                        ">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                            Zoom Out
+                        </button>
+                    </div>
+                    <div style="width:1px;height:28px;background:rgba(255,255,255,0.15);"></div>
+                    <button type="button" class="mlc-btn mlc-btn-cancel" title="Cancel (Esc)" style="
+                        padding:6px 16px;border-radius:6px;border:1px solid rgba(239,68,68,0.5);
+                        background:rgba(239,68,68,0.15);color:#f87171;cursor:pointer;font-size:0.85rem;
+                        display:flex;align-items:center;gap:5px;white-space:nowrap;
+                    ">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        Cancel
+                    </button>
+                    <button type="button" class="mlc-btn mlc-btn-confirm" title="Confirm crop (Enter)" style="
+                        padding:6px 20px;border-radius:6px;border:none;
+                        background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;cursor:pointer;font-size:0.85rem;font-weight:600;
+                        display:flex;align-items:center;gap:5px;white-space:nowrap;box-shadow:0 2px 8px rgba(59,130,246,0.4);
+                    ">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        Apply Crop
+                    </button>
+                </div>
+            </div>
+            <div class="mlc-image-container" style="flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;"></div>
+            <div class="mlc-hint" style="
+                text-align:center;padding:6px;font-size:0.72rem;color:rgba(255,255,255,0.4);
+                background:rgba(0,0,0,0.6);flex-shrink:0;
+            ">
+                Drag to reposition &bull; Scroll to zoom &bull; <kbd style="background:rgba(255,255,255,0.15);padding:1px 5px;border-radius:3px;color:rgba(255,255,255,0.6);">Enter</kbd> to apply &bull; <kbd style="background:rgba(255,255,255,0.15);padding:1px 5px;border-radius:3px;color:rgba(255,255,255,0.6);">Esc</kbd> to cancel
+            </div>
+        `;
+
         document.body.appendChild(editor);
         this.editor = editor;
+
+        this.editor.querySelector('.mlc-zoom-in').addEventListener('click', () => this.cropper.zoom(0.1));
+        this.editor.querySelector('.mlc-zoom-out').addEventListener('click', () => this.cropper.zoom(-0.1));
+        this.editor.querySelector('.mlc-btn-confirm').addEventListener('click', this.cropper._onConfirm.bind(this.cropper));
+        this.editor.querySelector('.mlc-btn-cancel').addEventListener('click', this.cropper._onCancel.bind(this.cropper));
     }
 
-    _createButtonToolbar() {
-        // Create confirm button at the top left of the viewport
-        var buttonToolbar = document.createElement('div');
-        buttonToolbar.className = 'btn-toolbar';
-        buttonToolbar.style.display = 'flex';
-        buttonToolbar.style.justifyContent = 'center';
-        buttonToolbar.appendChild(this._createButtonGroupZoom());
-        buttonToolbar.appendChild(this._createButtonGroupConfirm());
-        buttonToolbar.appendChild(this._createButtonGroupCancel());
-
-        var buttonToolbarContainer = document.createElement('div');
-        buttonToolbarContainer.style.position = 'absolute';
-        buttonToolbarContainer.style.left = '0%';
-        buttonToolbarContainer.style.top = '0';
-        buttonToolbarContainer.style.padding = '15px 0';
-        buttonToolbarContainer.style.width = '100%';
-        buttonToolbarContainer.style.backgroundColor = 'rgba(0,0,0,.5)';
-        buttonToolbarContainer.style.zIndex = 9999;
-        buttonToolbarContainer.className = 'w-100 d-flex justify-content-center';
-
-        buttonToolbarContainer.appendChild(buttonToolbar);
-
-        this.editor.appendChild(buttonToolbarContainer);
-    }
-
-    _createButtonGroupConfirm() {
-        var buttonGroup = document.createElement('div');
-        buttonGroup.className = 'btn-group btn-group-lg mr-2';
-        buttonGroup.style.marginLeft = '20px';
-
-        buttonGroup.appendChild(this._createButtonConfirm());
-
-        return buttonGroup;
-    }
-
-    _createButtonConfirm() {
-        // Create confirm button at the top left of the viewport
-        var btn = document.createElement('button');
-        btn.className = 'btn btn-primary';
-        btn.textContent = 'Salveaza';
-
-        btn.addEventListener('click', this.cropper._onConfirm.bind(this.cropper));
-
-        return btn;
-    }
-
-    _createButtonGroupCancel() {
-        var buttonGroup = document.createElement('div');
-        buttonGroup.className = 'btn-group btn-group-lg mr-2';
-        buttonGroup.style.marginLeft = '20px';
-
-        buttonGroup.appendChild(this._createButtonCancel());
-
-        return buttonGroup;
-    }
-
-    _createButtonCancel() {
-        // Create confirm button at the top left of the viewport
-        var btn = document.createElement('button');
-        btn.className = 'btn btn-danger';
-        btn.textContent = 'Renunta';
-
-        btn.addEventListener('click', this.cropper._onCancel.bind(this.cropper));
-
-        return btn;
-    }
-
-    _createButtonGroupZoom() {
-        var buttonGroup = document.createElement('div');
-        buttonGroup.className = 'btn-group mr-2';
-        buttonGroup.style.marginTop = '5px';
-        buttonGroup.appendChild(this._createButtonZoom(0.1));
-        buttonGroup.appendChild(this._createButtonZoom(-0.1));
-        return buttonGroup;
-    }
-
-    _createButtonZoom(value) {
-        // Create confirm button at the top left of the viewport
-        var btn = document.createElement('button');
-        btn.className = 'btn btn-secondary';
-
-        var icon = document.createElement('i');
-        if (value > 0) {
-            icon.className = "fas fa-search-plus"
-            btn.textContent = ' Zoom In';
-        } else {
-            icon.className = "fas fa-search-minus"
-            btn.textContent = ' Zoom Out';
-        }
-        btn.prepend(icon);
-
-        btn.addEventListener('click', function () {
-            this.cropper.zoom(value);
-        }.bind(this));
-
-        return btn;
+    _createToolbar() {
+        // Toolbar is already created inline in _createEditor
     }
 }

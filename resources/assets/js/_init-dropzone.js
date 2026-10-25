@@ -7,7 +7,7 @@ Dropzone.prototype.queueButtonsInit = function () {
     this.actionButtons = {
         start: this.element.querySelector(".dropzone-actions .start"),
         cancel: this.element.querySelector(".dropzone-actions .cancel"),
-    }
+    };
     this.queueButtonsObserve();
     this.queueButtonsState(0);
 };
@@ -25,16 +25,21 @@ Dropzone.prototype.queueButtonsObserve = function () {
 };
 
 Dropzone.prototype.queueButtonsState = function (state) {
+    var btn = this.actionButtons;
     if (state === 1) {
-        this.actionButtons.start.removeAttribute("disabled");
-        this.actionButtons.start.style.opacity = "1";
-        this.actionButtons.cancel.removeAttribute("disabled");
-        this.actionButtons.cancel.style.opacity = "1";
+        btn.start.removeAttribute("disabled");
+        btn.start.style.opacity = "1";
+        btn.start.style.pointerEvents = "";
+        btn.cancel.removeAttribute("disabled");
+        btn.cancel.style.opacity = "1";
+        btn.cancel.style.pointerEvents = "";
     } else {
-        this.actionButtons.start.setAttribute("disabled", "disabled");
-        this.actionButtons.start.style.opacity = "0";
-        this.actionButtons.cancel.setAttribute("disabled", "disabled");
-        this.actionButtons.cancel.style.opacity = "0";
+        btn.start.setAttribute("disabled", "disabled");
+        btn.start.style.opacity = "0";
+        btn.start.style.pointerEvents = "none";
+        btn.cancel.setAttribute("disabled", "disabled");
+        btn.cancel.style.opacity = "0";
+        btn.cancel.style.pointerEvents = "none";
     }
 };
 
@@ -42,46 +47,59 @@ var dropzoneOptionsImages = {
     thumbnailWidth: 300,
     thumbnailHeight: 300,
     parallelUploads: 20,
-    autoQueue: false, // Make sure the files aren't queued until manually added
+    autoQueue: false,
 
     init: function () {
         var dzClosure = this;
+        var dropArea = this.element.querySelector('#dz-drop-area');
 
         this.queueButtonsInit();
 
+        // Make the drop area also a clickable trigger
+        if (dropArea) {
+            dropArea.addEventListener('click', function () {
+                dzClosure.hiddenFileInput && dzClosure.hiddenFileInput.click();
+            });
+        }
+
         this.on("thumbnail", function (file) {
             var constraint = this.options.constraint;
-
-            console.log(constraint);
-
-            // Do the dimension checks you want to do
             if (file.width < constraint.minWidth || file.height < constraint.minHeight) {
-                file.doRejection()
+                file.doRejection();
             } else {
                 file.doAccept();
             }
         });
 
         this.on("addedfile", function (file) {
-            // Hookup the start button
-            file.previewElement.querySelector(".start").onclick = function () {
-                dzClosure.enqueueFile(file);
-            };
+            var startBtn = file.previewElement && file.previewElement.querySelector(".start");
+            if (startBtn) {
+                startBtn.addEventListener("click", function () {
+                    dzClosure.enqueueFile(file);
+                });
+            }
+
+            // Hide the drop area hint once files are added
+            if (dropArea) {
+                dropArea.style.display = 'none';
+            }
 
             this.queueButtonsState(1);
         });
 
-        // Update the total progress bar
         this.on("totaluploadprogress", function (progress) {
-            dzClosure.element.querySelector(".total-progress .progress-bar").style.width = progress + "%";
+            var bar = dzClosure.element.querySelector(".total-progress .progress-bar");
+            var pct = dzClosure.element.querySelector(".upload-percent");
+            if (bar) bar.style.width = progress + "%";
+            if (pct) pct.textContent = Math.round(progress) + "%";
         });
 
         this.on("sending", function (file, xhr, formData) {
-            // Show the total progress bar when upload starts
-            dzClosure.element.querySelector(".total-progress").style.opacity = "1";
+            var totalProgress = dzClosure.element.querySelector(".total-progress");
+            if (totalProgress) totalProgress.style.opacity = "1";
 
-            // And disable the start button
-            file.previewElement.querySelector(".start").setAttribute("disabled", "disabled");
+            var startBtn = file.previewElement && file.previewElement.querySelector(".start");
+            if (startBtn) startBtn.setAttribute("disabled", "disabled");
 
             if (file.hasOwnProperty('customPostParams')) {
                 for (var postParam in file.customPostParams) {
@@ -90,49 +108,64 @@ var dropzoneOptionsImages = {
             }
         });
 
-        this.on("success", function (file, response) {
-            file.previewElement.querySelector('.dz-progress').style.opacity = "0";
-            file.previewElement.querySelector('.dz-size').style.opacity = "0";
-            file.previewElement.querySelector('.dz-error-message').style.opacity = "0";
+        this.on("success", function (file) {
+            if (!file.previewElement) return;
+            var progress = file.previewElement.querySelector('.dz-progress');
+            var errorMsg = file.previewElement.querySelector('.dz-error-message');
+            if (progress) progress.style.opacity = "0";
+            if (errorMsg) errorMsg.style.display = "none";
 
-            $(file.previewElement.querySelector(".cancel")).hide();
-            $(file.previewElement.querySelector(".start")).hide();
-            file.previewElement.querySelector(".delete").style.display = "inline";
+            var cancelBtn = file.previewElement.querySelector(".cancel");
+            var startBtn = file.previewElement.querySelector(".start");
+            var deleteBtn = file.previewElement.querySelector(".delete");
+            if (cancelBtn) cancelBtn.style.display = "none";
+            if (startBtn) startBtn.style.display = "none";
+            if (deleteBtn) deleteBtn.style.display = "inline-flex";
         });
 
-        this.on("error", function (file, response, XMLHttpRequest) {
+        this.on("error", function (file, message) {
+            if (!file.previewElement) return;
+            var errorMsg = file.previewElement.querySelector('.dz-error-message');
+            if (errorMsg) {
+                errorMsg.style.display = "block";
+            }
         });
 
-        // Hide the total progress bar when nothing's uploading anymore
-        this.on("queuecomplete", function (progress) {
-            dzClosure.element.querySelector(".total-progress").style.opacity = "0";
-            this.queueButtonsState(0);
+        this.on("queuecomplete", function () {
+            var totalProgress = dzClosure.element.querySelector(".total-progress");
+            if (totalProgress) {
+                setTimeout(function () {
+                    totalProgress.style.opacity = "0";
+                }, 1500);
+            }
+            dzClosure.queueButtonsState(0);
+        });
+
+        this.on("removedfile", function () {
+            var remaining = dzClosure.files.length;
+            if (remaining === 0 && dropArea) {
+                dropArea.style.display = '';
+            }
+            if (remaining === 0) {
+                dzClosure.queueButtonsState(0);
+            }
         });
     },
 
-    // Instead of directly accepting / rejecting the file, setup two
-    // functions on the file that can be called later to accept / reject
-    // the file.
     accept: function (file, done) {
         file.doAccept = done;
         file.doRejection = function () {
-
-            // And disable the start button
-
-            $(file.previewElement.querySelector(".start")).hide();
-            $(file.previewElement.querySelector(".dz-progress")).hide();
-
-            done("Invalid dimension.");
+            var startBtn = file.previewElement && file.previewElement.querySelector(".start");
+            var progress = file.previewElement && file.previewElement.querySelector(".dz-progress");
+            if (startBtn) startBtn.style.display = "none";
+            if (progress) progress.style.display = "none";
+            done("Invalid dimensions: image is too small.");
         };
-
-        // Of course you could also just put the `done` function in the file
-        // and call it either with or without error in the `thumbnail` event
-        // callback, but I think that this is cleaner.
     }
-
-}
+};
 
 var dropzoneOptionsImagesWithCropper = Object.assign(
+    {},
     dropzoneOptionsImages,
     {
         transformFile: function (file, done) {
@@ -144,26 +177,25 @@ var dropzoneOptionsImagesWithCropper = Object.assign(
 
 
 export default function createDropzone(element) {
-
-    let options = Object.assign({}, dropzoneOptionsImagesWithCropper);
+    const options = Object.assign({}, dropzoneOptionsImagesWithCropper);
 
     options.acceptedFiles = element.data('accepted_files');
     options.constraint = {
-        minWidth: parseInt(element.data('min_width')),
-        minHeight: parseInt(element.data('min_height')),
+        minWidth: parseInt(element.data('min_width'), 10),
+        minHeight: parseInt(element.data('min_height'), 10),
     };
 
-    // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument
-    var previewNode = element.find(".dropzone-file-template")[0];
-    previewNode.id = "";
+    const previewNode = element.find(".dropzone-file-template")[0];
+    if (previewNode) {
+        previewNode.id = "";
+        const previewTemplate = previewNode.parentNode.innerHTML;
+        previewNode.parentNode.removeChild(previewNode);
+        options.previewTemplate = previewTemplate;
+    }
 
-    var previewTemplate = previewNode.parentNode.innerHTML;
-    previewNode.parentNode.removeChild(previewNode);
-
-    options.previewTemplate = previewTemplate;
     options.previewsContainer = element.find(".dropzone-previews")[0];
-
     options.clickable = element.find(".fileinput-button")[0];
+    options.url = element.attr('action');
 
     return new Dropzone(element[0], options);
 }

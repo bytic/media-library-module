@@ -12,8 +12,8 @@
     "production": "yarn encore prod"
   },
   "dependencies": {
-    "cropperjs": "^1.5",
-    "dropzone": "^5.7"
+    "cropperjs": "^1.6.2",
+    "dropzone": "^5.9.3"
   },
   "devDependencies": {}
 }
