@@ -25,7 +25,7 @@
     }
   },
   "require": {
-    "bytic/medialibrary": "^0.8|^0.9"
+    "bytic/medialibrary": "^0.9|^1.0"
   },
   "require-dev": {
     "bytic/common": "^0.9|^1.0",
