@@ -22,3 +22,12 @@ test('initial crop fits image and viewport at requested aspect ratio', () => {
     const region = initialCrop(image, canvas, 1, 0.8);
     assert.deepEqual(region, [130, 40, 160, 160]);
 });
+
+test('full coverage uses the largest crop for landscape, portrait, and free ratios', () => {
+    const canvas = { left: 0, top: 0, width: 400, height: 400 };
+    const landscape = { left: 0, top: 100, width: 400, height: 200 };
+    const portrait = { left: 100, top: 0, width: 200, height: 400 };
+    assert.deepEqual(initialCrop(landscape, canvas, 1, 1), [100, 100, 200, 200]);
+    assert.deepEqual(initialCrop(portrait, canvas, 2, 1), [100, 150, 200, 100]);
+    assert.deepEqual(initialCrop(landscape, canvas, null, 1), [0, 100, 400, 200]);
+});
