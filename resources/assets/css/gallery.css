@@ -138,12 +138,11 @@
 .dropzone-gallery [hidden] { display: none !important; }
 .ml-upload-shell {
     border: 0;
-    border-radius: 1.25rem;
     background: var(--ml-surface);
     box-shadow: 0 1.25rem 4rem rgb(15 23 42 / 22%);
 }
 .ml-upload-header, .ml-upload-body, .ml-upload-footer { padding: clamp(1rem, 3vw, 1.5rem); }
-.ml-upload-header { align-items: flex-start; border-bottom: 0; padding-bottom: .5rem; }
+.ml-upload-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; border-bottom: 0; padding-bottom: .5rem; }
 .ml-upload-header h2, .ml-crop-header h2 {
     font-size: 1.5rem;
     font-weight: 700;
@@ -181,7 +180,7 @@
 .ml-button-primary { background: var(--ml-accent); border-color: var(--ml-accent); color: #fff; }
 .ml-button-primary:hover:not(:disabled) { background: #19399a; }
 .ml-button:disabled { opacity: .55; cursor: not-allowed; }
-.ml-close { min-width: 2.75rem; font-size: 1.25rem; }
+.ml-close { flex: 0 0 auto; margin-left: auto; min-width: 2.75rem; font-size: 1.25rem; }
 .dropzone-gallery :focus-visible { outline: 2px solid var(--ml-accent); outline-offset: 2px; }
 
 .dropzone-gallery .dz-upload-area {
@@ -228,20 +227,23 @@
 .dz-processing:not(.dz-complete) .dz-file-card .dz-progress { display: block; }
 
 .ml-crop-dialog {
-    width: min(45rem, calc(100% - 1rem));
-    max-height: calc(100% - 1rem);
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
     box-sizing: border-box;
-    margin: auto;
+    margin: 0;
     overflow: auto;
-    border: 1px solid var(--ml-border);
-    border-radius: 1rem;
+    border: 0;
+    border-radius: 0;
     padding: clamp(.75rem, 2vw, 1.25rem);
     background: var(--ml-surface);
     color: var(--ml-text);
 }
+.ml-crop-dialog[open] { display: flex; flex-direction: column; }
 .ml-crop-dialog::backdrop { background: rgb(15 23 42 / 75%); }
 .ml-crop-filename { margin: 0 0 .75rem; overflow-wrap: anywhere; color: var(--ml-muted); }
-.ml-crop-stage { position: relative; height: clamp(9rem, 48vh, 26rem); background: #1e293b; border-radius: .65rem; overflow: hidden; }
+.ml-crop-stage { position: relative; flex: 1 0 9rem; min-height: 9rem; background: #1e293b; border-radius: .65rem; overflow: hidden; }
 .ml-crop-stage > img { display: none; }
 .ml-crop-stage cropper-canvas { width: 100%; height: 100%; }
 .ml-crop-tools { margin-top: .65rem; }

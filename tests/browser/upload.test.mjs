@@ -60,6 +60,99 @@ test('reviewing images serially preserves the original and sends crop coordinate
     }
 });
 
+test('editor starts with the largest crop and keeps selections within image and minimum bounds', async () => {
+    const html = execFileSync('php', ['tests/browser/fixture.php'], { encoding: 'utf8' });
+    const script = await readFile('resources/assets/dist/manager.js', 'utf8');
+    const css = await readFile('resources/assets/dist/manager.css', 'utf8');
+    const browser = await chromium.launch({
+        headless: true,
+        ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}),
+    });
+    const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
+    try {
+        await page.setContent(html);
+        await page.addStyleTag({ content: css + 'body { margin: 0; } .modal { position: fixed; inset: 0; display: block; }' });
+        await page.addScriptTag({ content: script });
+        const layout = await page.evaluate(() => {
+            const fullscreen = document.querySelector('.modal-dialog').classList.contains('modal-fullscreen');
+            const header = document.querySelector('.ml-upload-header').getBoundingClientRect();
+            const close = document.querySelector('.ml-close').getBoundingClientRect();
+            return { fullscreen, rightGap: header.right - close.right };
+        });
+
+        assert.equal(layout.fullscreen, true);
+        assert.ok(layout.rightGap < 40);
+
+        const png = await page.evaluate(() => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 300;
+            return canvas.toDataURL('image/png').split(',')[1];
+        });
+        await page.locator('input.dz-hidden-input').setInputFiles({
+            name: 'image.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64'),
+        });
+        await page.getByRole('button', { name: 'Crop & upload all' }).click();
+        await page.waitForFunction(() => document.querySelector('[data-tool="apply"]')?.disabled === false);
+        const state = () => page.evaluate(() => {
+            const dialog = document.querySelector('.ml-crop-dialog').getBoundingClientRect();
+            const image = document.querySelector('cropper-image').getBoundingClientRect();
+            const selection = document.querySelector('cropper-selection').getBoundingClientRect();
+            return {
+                dialogWidth: dialog.width, dialogHeight: dialog.height,
+                width: selection.width / image.width * 400,
+                height: selection.height / image.height * 300,
+                left: selection.left - image.left, top: selection.top - image.top,
+                right: image.right - selection.right, bottom: image.bottom - selection.bottom,
+            };
+        });
+        const initial = await state();
+        assert.equal(initial.dialogWidth, 900);
+        assert.equal(initial.dialogHeight, 700);
+        assert.ok(Math.abs(initial.width - 300) < 0.1 && Math.abs(initial.height - 300) < 0.1);
+        assert.ok(Math.abs(initial.top) < 0.1 && Math.abs(initial.bottom) < 0.1);
+
+        await page.evaluate(() => {
+            const selection = document.querySelector('cropper-selection');
+            selection.$move(10000, 0);
+            selection.$change(selection.x, selection.y, 1, 1);
+            document.querySelector('cropper-image').$zoom(-0.9);
+        });
+        const blocked = await state();
+        assert.ok(Math.abs(blocked.width - initial.width) < 0.1);
+        assert.ok(Math.abs(blocked.left - initial.left) < 0.1);
+        assert.ok(Math.abs(blocked.top - initial.top) < 0.1);
+
+        await page.evaluate(() => {
+            const selection = document.querySelector('cropper-selection');
+            selection.$change(selection.x + selection.width / 3, selection.y + selection.height / 3,
+                selection.width / 3, selection.height / 3);
+            document.querySelector('cropper-image').$zoom(1);
+        });
+        const minimum = await state();
+        assert.ok(Math.abs(minimum.width - 100) < 0.1 && Math.abs(minimum.height - 100) < 0.1);
+        assert.ok(minimum.left >= -0.1 && minimum.top >= -0.1);
+        assert.ok(minimum.right >= -0.1 && minimum.bottom >= -0.1);
+        assert.equal(await page.getByRole('button', { name: 'Apply crop & upload' }).isEnabled(), true);
+        await page.locator('.ml-crop-stage').focus();
+        await page.keyboard.press('Shift+ArrowLeft');
+        await page.evaluate(() => document.querySelector('cropper-image').$move(10000, 0));
+        const afterInput = await state();
+        assert.ok(Math.abs(afterInput.width - 100) < 0.1);
+        assert.ok(Math.abs(afterInput.left - minimum.left) < 0.1);
+
+        await page.setViewportSize({ width: 700, height: 500 });
+        await page.waitForFunction(() => document.querySelector('.ml-crop-dialog').getBoundingClientRect().width === 700);
+        await page.waitForFunction(() => {
+            const image = document.querySelector('cropper-image').getBoundingClientRect();
+            const selection = document.querySelector('cropper-selection').getBoundingClientRect();
+            return Math.abs(selection.height / image.height * 300 - 300) < 0.1;
+        });
+    } finally {
+        await browser.close();
+    }
+});
+
 test('rejects images below the minimum dimensions without opening the crop editor', async () => {
     const html = execFileSync('php', ['tests/browser/fixture.php'], { encoding: 'utf8' });
     const script = await readFile('resources/assets/dist/manager.js', 'utf8');

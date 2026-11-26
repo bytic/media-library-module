@@ -46,12 +46,15 @@ export default function editCrop(file, host, { aspectRatio, minWidth, minHeight 
 
         let cropper, image, selection, canvas, frame, current;
         let ready = false;
+        let resetting = false;
         let closed = false;
+        let resizeObserver;
 
         function finish(result) {
             if (closed) return;
             closed = true;
             cancelAnimationFrame(frame);
+            resizeObserver?.disconnect();
             cropper?.destroy();
             dialog.close();
             dialog.remove();
@@ -76,16 +79,23 @@ export default function editCrop(file, host, { aspectRatio, minWidth, minHeight 
         }
 
         function reset() {
+            resetting = true;
             image.$resetTransform().$center('contain');
             const imageRect = image.getBoundingClientRect();
             const canvasRect = canvas.getBoundingClientRect();
-            let region = initialCrop(imageRect, canvasRect, aspectRatio, 0.8);
-            if (region[2] / imageRect.width * original.naturalWidth < minWidth
-                || region[3] / imageRect.height * original.naturalHeight < minHeight) {
-                region = initialCrop(imageRect, canvasRect, aspectRatio, 1);
-            }
-            selection.$change(...region);
+            selection.$change(...initialCrop(imageRect, canvasRect, aspectRatio, 1));
+            resetting = false;
             update();
+        }
+
+        function validSelection(box, imageBox) {
+            const epsilon = 0.0001;
+            return imageBox.width > 0 && imageBox.height > 0
+                && box.x >= imageBox.x - epsilon && box.y >= imageBox.y - epsilon
+                && box.x + box.width <= imageBox.x + imageBox.width + epsilon
+                && box.y + box.height <= imageBox.y + imageBox.height + epsilon
+                && box.width / imageBox.width * original.naturalWidth + epsilon >= minWidth
+                && box.height / imageBox.height * original.naturalHeight + epsilon >= minHeight;
         }
 
         function zoom(amount) {
@@ -152,8 +162,30 @@ export default function editCrop(file, host, { aspectRatio, minWidth, minHeight 
             if (closed) return;
             if (aspectRatio) selection.aspectRatio = aspectRatio;
             reset();
-            image.addEventListener('transform', scheduleUpdate);
-            selection.addEventListener('change', scheduleUpdate);
+            image.addEventListener('change', (event) => {
+                if (!resetting && !validSelection(selection, event.detail)) event.preventDefault();
+                else scheduleUpdate();
+            });
+            selection.addEventListener('change', (event) => {
+                const imageRect = image.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+                const imageBox = {
+                    x: imageRect.left - canvasRect.left, y: imageRect.top - canvasRect.top,
+                    width: imageRect.width, height: imageRect.height,
+                };
+                if (!resetting && !validSelection(event.detail, imageBox)) event.preventDefault();
+                else scheduleUpdate();
+            });
+            let stageWidth = stage.clientWidth;
+            let stageHeight = stage.clientHeight;
+            resizeObserver = new ResizeObserver(() => {
+                if (stageWidth !== stage.clientWidth || stageHeight !== stage.clientHeight) {
+                    stageWidth = stage.clientWidth;
+                    stageHeight = stage.clientHeight;
+                    reset();
+                }
+            });
+            resizeObserver.observe(stage);
             dialog.querySelectorAll('.ml-crop-tools button').forEach((button) => { button.disabled = false; });
             ready = true;
         }).catch(() => {

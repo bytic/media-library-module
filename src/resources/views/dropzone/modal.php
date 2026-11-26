@@ -26,7 +26,7 @@ $maxSize = function_exists('max_upload') ? max_upload() : round($maxBytes / 1048
 
     <div id="<?= $escape($modalId) ?>" class="modal fade" tabindex="-1" role="dialog"
          aria-labelledby="<?= $escape($modalId) ?>-label">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-dialog modal-fullscreen" role="document">
             <div class="modal-content ml-upload-shell">
                 <div class="modal-header ml-upload-header">
                     <div>
