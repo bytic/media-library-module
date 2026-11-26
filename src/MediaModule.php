@@ -21,15 +21,8 @@ class MediaModule
             return;
         }
 
-        Assets::entry()->scripts()->addRaw(self::loadAssetContent('/js/_dropzone.min.js'));
-        Assets::entry()->scripts()->addRaw(self::loadAssetContent('/js/_cropper.min.js'));
-        Assets::entry()->scripts()->addRaw(self::loadAssetContent('/js/_init-cropper.js'));
-        Assets::entry()->scripts()->addRaw(self::loadAssetContent('/js/_init-dropzone.js'));
-        Assets::entry()->scripts()->addRaw(self::loadAssetContent('/js/_media-manage.js'));
-
-        Assets::entry()->styles()->addRaw(self::loadAssetContent('/css/dropzone.min.css'));
-        Assets::entry()->styles()->addRaw(self::loadAssetContent('/css/cropper.min.css'));
-        Assets::entry()->styles()->addRaw(self::loadAssetContent('/css/gallery.css'));
+        $assetEntry->scripts()->addRaw(self::loadAssetContent('/dist/manager.js'));
+        $assetEntry->styles()->addRaw(self::loadAssetContent('/dist/manager.css'));
     }
 
     /**

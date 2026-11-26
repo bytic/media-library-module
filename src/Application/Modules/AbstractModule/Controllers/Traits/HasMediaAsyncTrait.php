@@ -38,7 +38,7 @@ trait HasMediaAsyncTrait
 
         /** @var HasMediaTrait $item */
         $item = $this->getModelFromRequest();
-        $mediaType = $this->getRequest()->get('media_type', 'images');
+        $mediaType = $this->mediaRequestValue('media_type', 'images');
 
         /** @var \ByTIC\MediaLibrary\Validation\Constraints\ImageConstraint $constraint */
 //        $constraint = $item->getMediaRepository()->getCollection('images')->getConstraint();
@@ -66,13 +66,13 @@ trait HasMediaAsyncTrait
     public function setDefaultMediaItem()
     {
         $item = $this->getModelFromRequest();
-        $type = $this->getRequest()->get('media_type');
+        $type = $this->mediaRequestValue('media_type');
         switch ($type) {
             case 'images':
             case 'covers':
             case 'logos':
                 $item->getMedia($type)->persistDefaultMediaFromName(
-                    $this->getRequest()->get('media_filename')
+                    $this->mediaRequestValue('media_filename')
                 );
                 $this->sendSuccess("Imaginea a fost stabilita ca principala");
                 break;
@@ -85,14 +85,14 @@ trait HasMediaAsyncTrait
     public function removeMediaItem()
     {
         $item = $this->getModelFromRequest();
-        $type = $this->getRequest()->get('media_type');
+        $type = $this->mediaRequestValue('media_type');
 
-        switch ($this->getRequest()->get('media_type')) {
+        switch ($type) {
             case 'images':
             case 'covers':
             case 'logos':
                 $item->getMedia($type)->deleteMediaByKey(
-                    $this->getRequest()->get('media_filename')
+                    $this->mediaRequestValue('media_filename')
                 );
 
                 $this->sendSuccess("Imaginea a fost stearsa");
@@ -100,5 +100,18 @@ trait HasMediaAsyncTrait
             default:
                 $this->sendError("Imaginea nu a putut fi stearsa");
         }
+
+    }
+
+    protected function mediaRequestValue($key, $default = null)
+    {
+        $request = $this->getRequest();
+        foreach ([$request->attributes, $request->query, $request->request] as $bag) {
+            if ($bag->has($key)) {
+                return $bag->get($key);
+            }
+        }
+
+        return $default;
     }
 }

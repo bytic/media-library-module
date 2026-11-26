@@ -4,16 +4,23 @@
   "description": " ",
   "private": true,
   "author": "Gabriel Solomon",
-  "license": "proprietary",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
   "scripts": {
-    "dev": "yarn run development",
-    "development": "yarn encore dev",
-    "prod": "yarn run production",
-    "production": "yarn encore prod"
+    "dev": "npm run development",
+    "development": "node scripts/build.mjs",
+    "prod": "npm run production",
+    "production": "node scripts/build.mjs --minify",
+    "build": "npm run production",
+    "test": "node --test tests/js/*.test.mjs",
+    "test:browser": "node --test tests/browser/*.test.mjs"
   },
   "dependencies": {
-    "cropperjs": "^1.6.2",
-    "dropzone": "^5.9.3"
+    "cropperjs": "^2.3.1",
+    "dropzone": "^6.3.5"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "playwright": "^1.65.1"
+  }
 }

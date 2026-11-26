@@ -1,199 +1,163 @@
-import Cropper from 'cropperjs';
+import Cropper, { DEFAULT_TEMPLATE } from 'cropperjs';
+import { cropData, initialCrop } from './_crop-data.mjs';
 
-export default class MediaLibraryCropper {
+const template = DEFAULT_TEMPLATE
+    .replace('rotatable scalable skewable translatable', 'scalable translatable')
+    .replace('action="select" plain', 'action="move" plain')
+    .replace('initial-coverage="0.5" movable resizable', 'precise movable resizable');
 
-    constructor(dropzone, file, done) {
-        this.dropzone = dropzone;
-        this.file = file;
-        this.done = done;
-    }
+export default function editCrop(file, host, { aspectRatio, minWidth, minHeight }) {
+    return new Promise((resolve) => {
+        const dialog = document.createElement('dialog');
+        dialog.className = 'ml-crop-dialog';
+        dialog.setAttribute('aria-label', 'Crop image');
+        dialog.innerHTML = `
+            <header class="ml-crop-header">
+                <span class="ml-eyebrow">Image editor</span>
+                <h2>Crop image</h2>
+                <p class="ml-crop-filename"></p>
+            </header>
+            <div class="ml-crop-stage" tabindex="0" aria-label="Crop workspace"></div>
+            <div class="ml-crop-tools">
+                <div role="group" aria-label="Crop tools">
+                    <button type="button" class="ml-button" data-tool="out" aria-label="Zoom out" disabled>−</button>
+                    <button type="button" class="ml-button" data-tool="in" aria-label="Zoom in" disabled>+</button>
+                    <button type="button" class="ml-button" data-tool="reset" disabled>Reset</button>
+                </div>
+                <span class="ml-crop-size"></span>
+            </div>
+            <p class="ml-crop-hint">Drag to adjust. In the workspace, use arrow keys to move, Shift + arrows to resize, and + or − to zoom.</p>
+            <p class="ml-crop-message" role="status">Loading image…</p>
+            <footer class="ml-crop-footer">
+                <button type="button" class="ml-button" data-tool="cancel" autofocus>Cancel</button>
+                <button type="button" class="ml-button ml-button-primary" data-tool="apply" disabled>Apply crop &amp; upload</button>
+            </footer>`;
 
-    init() {
-        this._createImage();
-        this._createCropper();
+        const stage = dialog.querySelector('.ml-crop-stage');
+        const message = dialog.querySelector('.ml-crop-message');
+        const size = dialog.querySelector('.ml-crop-size');
+        const apply = dialog.querySelector('[data-tool="apply"]');
+        dialog.querySelector('.ml-crop-filename').textContent = file.name;
+        const original = new Image();
+        const url = URL.createObjectURL(file);
+        original.src = url;
+        stage.append(original);
+        host.append(dialog);
 
-        this.editor = new MediaLibraryCropperEditor(this, this.image);
-        this.editor.init();
-    }
+        let cropper, image, selection, canvas, frame, current;
+        let ready = false;
+        let closed = false;
 
-    destroy() {
-        this.editor.destroy();
-    }
-
-    zoom(value) {
-        this.cropper.zoom(value);
-    }
-
-    _onCancel() {
-        this.dropzone.removeFile(this.file);
-        this.destroy();
-    }
-
-    _onConfirm() {
-        var canvas = this.cropper.getCroppedCanvas();
-
-        if (!this.file.hasOwnProperty('customPostParams')) {
-            this.file.customPostParams = {};
+        function finish(result) {
+            if (closed) return;
+            closed = true;
+            cancelAnimationFrame(frame);
+            cropper?.destroy();
+            dialog.close();
+            dialog.remove();
+            URL.revokeObjectURL(url);
+            resolve(result);
         }
 
-        this.file.customPostParams.cropper = new URLSearchParams(this.cropper.getData()).toString();
+        function update() {
+            current = cropData(selection.getBoundingClientRect(), image.getBoundingClientRect(),
+                original.naturalWidth, original.naturalHeight);
+            size.textContent = current ? `${current.width} × ${current.height} px` : '';
+            const error = !current ? 'Keep the selection inside the image.'
+                : current.width < minWidth || current.height < minHeight
+                    ? `Choose a crop at least ${minWidth} × ${minHeight} px.` : '';
+            if (message.textContent !== error) message.textContent = error;
+            apply.disabled = Boolean(error);
+        }
 
-        canvas.toBlob(this._recreateThumbnail.bind(this));
-        this.done(this.file);
-        this.destroy();
-    }
+        function scheduleUpdate() {
+            cancelAnimationFrame(frame);
+            frame = requestAnimationFrame(update);
+        }
 
-    _createImage() {
-        this.image = new Image();
-        this.image.src = URL.createObjectURL(this.file);
-    }
+        function reset() {
+            image.$resetTransform().$center('contain');
+            const imageRect = image.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            let region = initialCrop(imageRect, canvasRect, aspectRatio, 0.8);
+            if (region[2] / imageRect.width * original.naturalWidth < minWidth
+                || region[3] / imageRect.height * original.naturalHeight < minHeight) {
+                region = initialCrop(imageRect, canvasRect, aspectRatio, 1);
+            }
+            selection.$change(...region);
+            update();
+        }
 
-    _createCropper() {
-        this.cropper = new Cropper(this.image, {
-            dragMode: 'move',
-            viewMode: 2,
-            aspectRatio: parseFloat(this.dropzone.element.dataset.aspect_ratio) || NaN,
-            minCropBoxWidth: parseInt(this.dropzone.element.dataset.min_width, 10) + 1,
-            minCropBoxHeight: parseInt(this.dropzone.element.dataset.min_height, 10) + 1,
+        function zoom(amount) {
+            // Zoom about the selection center, not the center of the image.
+            const rect = image.getBoundingClientRect();
+            const box = selection.getBoundingClientRect();
+            image.$zoom(amount, box.left + box.width / 2 - rect.left, box.top + box.height / 2 - rect.top);
+        }
+
+        dialog.addEventListener('cancel', (event) => {
+            event.preventDefault();
+            finish(null);
         });
-    }
+        dialog.addEventListener('keydown', (event) => {
+            // Prevent the underlying Bootstrap modal from also responding to Escape.
+            if (event.key === 'Escape') {
+                event.stopPropagation();
+                return;
+            }
+            if (event.target !== stage || !ready) return;
+            const movement = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[event.key];
+            if (!movement && !['+', '=', '-'].includes(event.key)) return;
+            event.preventDefault();
+            if (!movement) {
+                zoom(event.key === '-' ? -0.1 : 0.1);
+            } else if (event.shiftKey) {
+                const [x, y] = movement;
+                const width = selection.width + (aspectRatio ? (x || y) : x) * 4;
+                const height = aspectRatio ? width / aspectRatio : selection.height + y * 4;
+                if (width > 0 && height > 0) {
+                    selection.$change(selection.x + (selection.width - width) / 2,
+                        selection.y + (selection.height - height) / 2, width, height);
+                }
+            } else {
+                selection.$move(movement[0] * 4, movement[1] * 4);
+            }
+        });
+        dialog.addEventListener('click', async (event) => {
+            const tool = event.target.closest('[data-tool]')?.dataset.tool;
+            if (tool === 'cancel') finish(null);
+            if (!ready || closed) return;
+            if (tool === 'in' || tool === 'out') zoom(tool === 'in' ? 0.1 : -0.1);
+            if (tool === 'reset') reset();
+            if (tool === 'apply') {
+                update();
+                if (apply.disabled) return;
+                const data = current;
+                const preview = document.createElement('canvas');
+                const scale = Math.min(1, 320 / Math.max(data.width, data.height));
+                preview.width = Math.max(1, Math.round(data.width * scale));
+                preview.height = Math.max(1, Math.round(data.height * scale));
+                preview.getContext('2d').drawImage(original, data.x, data.y, data.width, data.height,
+                    0, 0, preview.width, preview.height);
+                finish({ data, preview: preview.toDataURL() });
+            }
+        });
 
-    _recreateThumbnail(blob) {
-        this.dropzone.createThumbnail(
-            blob,
-            this.dropzone.options.thumbnailWidth,
-            this.dropzone.options.thumbnailHeight,
-            this.dropzone.options.thumbnailMethod,
-            false,
-            function (dataURL) {
-                this.dropzone.emit('thumbnail', this.file, dataURL);
-            }.bind(this)
-        );
-    }
-}
-
-class MediaLibraryCropperEditor {
-    constructor(cropper, image) {
-        this.cropper = cropper;
-        this.image = image;
-        this._keyHandler = this._onKeyDown.bind(this);
-    }
-
-    init() {
-        this._createEditor();
-        this._createImage();
-        this._createToolbar();
-        document.addEventListener('keydown', this._keyHandler);
-    }
-
-    destroy() {
-        document.removeEventListener('keydown', this._keyHandler);
-        if (this.editor && this.editor.parentNode) {
-            document.body.removeChild(this.editor);
-        }
-    }
-
-    _onKeyDown(e) {
-        if (e.key === 'Escape') {
-            this.cropper._onCancel();
-        } else if (e.key === 'Enter') {
-            this.cropper._onConfirm();
-        }
-    }
-
-    _createImage() {
-        this.editor.querySelector('.mlc-image-container').appendChild(this.image);
-    }
-
-    _createEditor() {
-        var editor = document.createElement('div');
-        editor.setAttribute('role', 'dialog');
-        editor.setAttribute('aria-modal', 'true');
-        editor.setAttribute('aria-label', 'Image Cropper');
-        editor.style.cssText = [
-            'position:fixed',
-            'inset:0',
-            'z-index:10000',
-            'background:#111',
-            'display:flex',
-            'flex-direction:column',
-        ].join(';');
-
-        editor.innerHTML = `
-            <div class="mlc-toolbar" style="
-                display:flex;
-                align-items:center;
-                justify-content:space-between;
-                padding:10px 16px;
-                background:rgba(0,0,0,0.85);
-                border-bottom:1px solid rgba(255,255,255,0.1);
-                flex-shrink:0;
-                gap:8px;
-                flex-wrap:wrap;
-            ">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <span style="color:#fff;font-size:0.85rem;font-weight:600;letter-spacing:0.5px;opacity:0.8;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
-                        Crop Image
-                    </span>
-                </div>
-                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                    <div class="mlc-zoom-group" style="display:flex;gap:4px;">
-                        <button type="button" class="mlc-btn mlc-btn-secondary mlc-zoom-in" title="Zoom in (scroll up)" style="
-                            padding:6px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);
-                            background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;font-size:0.8rem;
-                            display:flex;align-items:center;gap:5px;white-space:nowrap;
-                        ">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-                            Zoom In
-                        </button>
-                        <button type="button" class="mlc-btn mlc-btn-secondary mlc-zoom-out" title="Zoom out (scroll down)" style="
-                            padding:6px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);
-                            background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;font-size:0.8rem;
-                            display:flex;align-items:center;gap:5px;white-space:nowrap;
-                        ">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-                            Zoom Out
-                        </button>
-                    </div>
-                    <div style="width:1px;height:28px;background:rgba(255,255,255,0.15);"></div>
-                    <button type="button" class="mlc-btn mlc-btn-cancel" title="Cancel (Esc)" style="
-                        padding:6px 16px;border-radius:6px;border:1px solid rgba(239,68,68,0.5);
-                        background:rgba(239,68,68,0.15);color:#f87171;cursor:pointer;font-size:0.85rem;
-                        display:flex;align-items:center;gap:5px;white-space:nowrap;
-                    ">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        Cancel
-                    </button>
-                    <button type="button" class="mlc-btn mlc-btn-confirm" title="Confirm crop (Enter)" style="
-                        padding:6px 20px;border-radius:6px;border:none;
-                        background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;cursor:pointer;font-size:0.85rem;font-weight:600;
-                        display:flex;align-items:center;gap:5px;white-space:nowrap;box-shadow:0 2px 8px rgba(59,130,246,0.4);
-                    ">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                        Apply Crop
-                    </button>
-                </div>
-            </div>
-            <div class="mlc-image-container" style="flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;"></div>
-            <div class="mlc-hint" style="
-                text-align:center;padding:6px;font-size:0.72rem;color:rgba(255,255,255,0.4);
-                background:rgba(0,0,0,0.6);flex-shrink:0;
-            ">
-                Drag to reposition &bull; Scroll to zoom &bull; <kbd style="background:rgba(255,255,255,0.15);padding:1px 5px;border-radius:3px;color:rgba(255,255,255,0.6);">Enter</kbd> to apply &bull; <kbd style="background:rgba(255,255,255,0.15);padding:1px 5px;border-radius:3px;color:rgba(255,255,255,0.6);">Esc</kbd> to cancel
-            </div>
-        `;
-
-        document.body.appendChild(editor);
-        this.editor = editor;
-
-        this.editor.querySelector('.mlc-zoom-in').addEventListener('click', () => this.cropper.zoom(0.1));
-        this.editor.querySelector('.mlc-zoom-out').addEventListener('click', () => this.cropper.zoom(-0.1));
-        this.editor.querySelector('.mlc-btn-confirm').addEventListener('click', this.cropper._onConfirm.bind(this.cropper));
-        this.editor.querySelector('.mlc-btn-cancel').addEventListener('click', this.cropper._onCancel.bind(this.cropper));
-    }
-
-    _createToolbar() {
-        // Toolbar is already created inline in _createEditor
-    }
+        dialog.showModal();
+        cropper = new Cropper(original, { container: stage, template });
+        image = cropper.getCropperImage();
+        selection = cropper.getCropperSelection();
+        canvas = cropper.getCropperCanvas();
+        image.$ready().then(() => {
+            if (closed) return;
+            if (aspectRatio) selection.aspectRatio = aspectRatio;
+            reset();
+            image.addEventListener('transform', scheduleUpdate);
+            selection.addEventListener('change', scheduleUpdate);
+            dialog.querySelectorAll('.ml-crop-tools button').forEach((button) => { button.disabled = false; });
+            ready = true;
+        }).catch(() => {
+            if (!closed) message.textContent = 'This image could not be opened. Cancel and select another image.';
+        });
+    });
 }
