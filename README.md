@@ -26,6 +26,7 @@ Existing applications can continue to provide a `media-library` Webpack entry
 using `resources/assets/js/manager.js` and `resources/assets/scss/manager.scss`.
 Otherwise the module serves its prebuilt standalone assets automatically. The
 gallery actions still use the host application's jQuery and Bootstrap modal.
+The upload dialog uses Bootstrap 5's `modal-fullscreen` class for its layout.
 
 Composer supports the existing MediaLibrary 0.8/0.9 ranges and 1.x. Each
 dependency version has its own PHP and extension requirements; MediaLibrary 1.x

@@ -136,26 +136,13 @@
 }
 
 .dropzone-gallery [hidden] { display: none !important; }
-.dropzone-gallery .modal-dialog {
-    width: 100%;
-    max-width: none;
-    height: 100%;
-    margin: 0;
-}
 .ml-upload-shell {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
     border: 0;
-    border-radius: 0;
     background: var(--ml-surface);
     box-shadow: 0 1.25rem 4rem rgb(15 23 42 / 22%);
 }
-.dropzone-gallery .modal-dialog .ml-upload-shell { max-height: none; }
 .ml-upload-header, .ml-upload-body, .ml-upload-footer { padding: clamp(1rem, 3vw, 1.5rem); }
 .ml-upload-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; border-bottom: 0; padding-bottom: .5rem; }
-.ml-upload-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
-.ml-upload-header, .ml-upload-footer { flex-shrink: 0; }
 .ml-upload-header h2, .ml-crop-header h2 {
     font-size: 1.5rem;
     font-weight: 700;

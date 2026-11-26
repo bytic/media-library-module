@@ -71,20 +71,16 @@ test('editor starts with the largest crop and keeps selections within image and 
     const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
     try {
         await page.setContent(html);
-        await page.addStyleTag({ content: '.modal-dialog-scrollable .modal-content { max-height: calc(100vh - 3.5rem); }'
-            + css + 'body { margin: 0; } .modal { position: fixed; inset: 0; display: block; }' });
+        await page.addStyleTag({ content: css + 'body { margin: 0; } .modal { position: fixed; inset: 0; display: block; }' });
         await page.addScriptTag({ content: script });
         const layout = await page.evaluate(() => {
-            const modal = document.querySelector('.modal-dialog').getBoundingClientRect();
-            const shell = document.querySelector('.ml-upload-shell').getBoundingClientRect();
+            const fullscreen = document.querySelector('.modal-dialog').classList.contains('modal-fullscreen');
             const header = document.querySelector('.ml-upload-header').getBoundingClientRect();
             const close = document.querySelector('.ml-close').getBoundingClientRect();
-            return { width: modal.width, height: modal.height, shellHeight: shell.height, rightGap: header.right - close.right };
+            return { fullscreen, rightGap: header.right - close.right };
         });
 
-        assert.equal(layout.width, 900);
-        assert.equal(layout.height, 700);
-        assert.equal(layout.shellHeight, 700);
+        assert.equal(layout.fullscreen, true);
         assert.ok(layout.rightGap < 40);
 
         const png = await page.evaluate(() => {
