@@ -1,39 +1,21 @@
 import createDropzone from './_init-dropzone';
 
-$ = window.$;
-
 class MediaLibrary {
     constructor(element) {
-        this.panel = $(element);
-        this.uploadModal = this.panel.find('.modal[role="dialog"]');
-        this.formDropzone = this.panel.find('form.dropzone-gallery');
-        this.init();
-    }
-
-    init() {
-        this.hookUploadModal();
-        this.hookMediaActions();
-        this.hookFormDropzone();
-    }
-
-    hookUploadModal() {
-        this.uploadModal.on('hidden.bs.modal', this.closeModal.bind(this));
+        this.$ = window.jQuery || window.$;
+        if (this.$) {
+            this.panel = this.$(element);
+            this.hookMediaActions();
+        }
     }
 
     hookMediaActions() {
-        this.panel.on('click', '.gallery-item a.set-default', $.proxy(this.setDefaultMedia, this));
-        this.panel.on('click', '.gallery-item a.negative', $.proxy(this.removeMedia, this));
-    }
-
-    hookFormDropzone() {
-        createDropzone(this.formDropzone);
-    }
-
-    closeModal() {
-        location.reload();
+        this.panel.on('click', '.gallery-item a.set-default', this.setDefaultMedia.bind(this));
+        this.panel.on('click', '.gallery-item a.negative', this.removeMedia.bind(this));
     }
 
     setDefaultMedia(event) {
+        const $ = this.$;
         event.stopPropagation();
 
         var link = $(event.currentTarget);
@@ -51,15 +33,12 @@ class MediaLibrary {
             },
             context: this
         }).done(function (response) {
-            this.panel.find('.gallery-item').removeClass('default');
-            galleryItem.addClass("default");
             overlay.hide();
-
-            // Update the default badge visibility
-            this.panel.find('.gallery-item .default-badge').hide();
-            galleryItem.find('.default-badge').show();
-
             if (response.type === 'success') {
+                this.panel.find('.gallery-item').removeClass('default');
+                galleryItem.addClass("default");
+                this.panel.find('.gallery-item .default-badge').hide();
+                galleryItem.find('.default-badge').show();
                 this._notify("Image set as default", "success");
             } else {
                 this._notify("Could not set image as default", "error");
@@ -71,6 +50,7 @@ class MediaLibrary {
     }
 
     removeMedia(event) {
+        const $ = this.$;
         event.stopPropagation();
 
         var link = $(event.currentTarget);
@@ -109,6 +89,7 @@ class MediaLibrary {
     }
 
     _notify(message, type) {
+        const $ = this.$;
         if (typeof $.jGrowl === 'function') {
             var header = type === 'success' ? 'Success' : 'Error';
             $.jGrowl(message, {header: header});
@@ -120,8 +101,34 @@ class MediaLibrary {
     }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll('.medialibrary-panel').forEach(function (el) {
-        new MediaLibrary(el);
+function init() {
+    document.querySelectorAll('.medialibrary-panel:not([data-ml-initialized])').forEach((panel) => {
+        panel.dataset.mlInitialized = 'true';
+        new MediaLibrary(panel);
     });
-});
+    document.querySelectorAll('form.dropzone-gallery').forEach((form) => {
+        if (form.dropzone) return;
+        const zone = createDropzone(form);
+        const modal = form.querySelector('.modal[role="dialog"]');
+        if (!zone || !modal) return;
+        const preventClose = (event) => {
+            if (zone.getActiveFiles().length || modal.querySelector('.ml-crop-dialog[open]')) event.preventDefault();
+        };
+        const refresh = () => {
+            if (form.dataset.mlUploaded === 'true') {
+                delete form.dataset.mlUploaded;
+                location.reload();
+            }
+        };
+        modal.addEventListener('hide.bs.modal', preventClose);
+        modal.addEventListener('hidden.bs.modal', refresh);
+        const $ = window.jQuery || window.$;
+        if ($?.fn?.on) $(modal).on('hide.bs.modal', preventClose).on('hidden.bs.modal', refresh);
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+} else {
+    init();
+}

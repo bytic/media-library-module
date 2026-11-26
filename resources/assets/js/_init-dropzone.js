@@ -1,201 +1,190 @@
-import Dropzone from 'dropzone';
-import MediaLibraryCropper from './_init-cropper';
-
-Dropzone.autoDiscover = false;
-
-Dropzone.prototype.queueButtonsInit = function () {
-    this.actionButtons = {
-        start: this.element.querySelector(".dropzone-actions .start"),
-        cancel: this.element.querySelector(".dropzone-actions .cancel"),
-    };
-    this.queueButtonsObserve();
-    this.queueButtonsState(0);
-};
-
-Dropzone.prototype.queueButtonsObserve = function () {
-    var instance = this;
-
-    this.actionButtons.start.addEventListener("click", function () {
-        instance.enqueueFiles(instance.getFilesWithStatus(Dropzone.ADDED));
-    });
-
-    this.actionButtons.cancel.addEventListener("click", function () {
-        instance.removeAllFiles(true);
-    });
-};
-
-Dropzone.prototype.queueButtonsState = function (state) {
-    var btn = this.actionButtons;
-    if (state === 1) {
-        btn.start.removeAttribute("disabled");
-        btn.start.style.opacity = "1";
-        btn.start.style.pointerEvents = "";
-        btn.cancel.removeAttribute("disabled");
-        btn.cancel.style.opacity = "1";
-        btn.cancel.style.pointerEvents = "";
-    } else {
-        btn.start.setAttribute("disabled", "disabled");
-        btn.start.style.opacity = "0";
-        btn.start.style.pointerEvents = "none";
-        btn.cancel.setAttribute("disabled", "disabled");
-        btn.cancel.style.opacity = "0";
-        btn.cancel.style.pointerEvents = "none";
-    }
-};
-
-var dropzoneOptionsImages = {
-    thumbnailWidth: 300,
-    thumbnailHeight: 300,
-    parallelUploads: 20,
-    autoQueue: false,
-
-    init: function () {
-        var dzClosure = this;
-        var dropArea = this.element.querySelector('#dz-drop-area');
-
-        this.queueButtonsInit();
-
-        // Make the drop area also a clickable trigger
-        if (dropArea) {
-            dropArea.addEventListener('click', function () {
-                dzClosure.hiddenFileInput && dzClosure.hiddenFileInput.click();
-            });
-        }
-
-        this.on("thumbnail", function (file) {
-            var constraint = this.options.constraint;
-            if (file.width < constraint.minWidth || file.height < constraint.minHeight) {
-                file.doRejection();
-            } else {
-                file.doAccept();
-            }
-        });
-
-        this.on("addedfile", function (file) {
-            var startBtn = file.previewElement && file.previewElement.querySelector(".start");
-            if (startBtn) {
-                startBtn.addEventListener("click", function () {
-                    dzClosure.enqueueFile(file);
-                });
-            }
-
-            // Hide the drop area hint once files are added
-            if (dropArea) {
-                dropArea.style.display = 'none';
-            }
-
-            this.queueButtonsState(1);
-        });
-
-        this.on("totaluploadprogress", function (progress) {
-            var bar = dzClosure.element.querySelector(".total-progress .progress-bar");
-            var pct = dzClosure.element.querySelector(".upload-percent");
-            if (bar) bar.style.width = progress + "%";
-            if (pct) pct.textContent = Math.round(progress) + "%";
-        });
-
-        this.on("sending", function (file, xhr, formData) {
-            var totalProgress = dzClosure.element.querySelector(".total-progress");
-            if (totalProgress) totalProgress.style.opacity = "1";
-
-            var startBtn = file.previewElement && file.previewElement.querySelector(".start");
-            if (startBtn) startBtn.setAttribute("disabled", "disabled");
-
-            if (file.hasOwnProperty('customPostParams')) {
-                for (var postParam in file.customPostParams) {
-                    formData.append(postParam, file.customPostParams[postParam]);
-                }
-            }
-        });
-
-        this.on("success", function (file) {
-            if (!file.previewElement) return;
-            var progress = file.previewElement.querySelector('.dz-progress');
-            var errorMsg = file.previewElement.querySelector('.dz-error-message');
-            if (progress) progress.style.opacity = "0";
-            if (errorMsg) errorMsg.style.display = "none";
-
-            var cancelBtn = file.previewElement.querySelector(".cancel");
-            var startBtn = file.previewElement.querySelector(".start");
-            var deleteBtn = file.previewElement.querySelector(".delete");
-            if (cancelBtn) cancelBtn.style.display = "none";
-            if (startBtn) startBtn.style.display = "none";
-            if (deleteBtn) deleteBtn.style.display = "inline-flex";
-        });
-
-        this.on("error", function (file, message) {
-            if (!file.previewElement) return;
-            var errorMsg = file.previewElement.querySelector('.dz-error-message');
-            if (errorMsg) {
-                errorMsg.style.display = "block";
-            }
-        });
-
-        this.on("queuecomplete", function () {
-            var totalProgress = dzClosure.element.querySelector(".total-progress");
-            if (totalProgress) {
-                setTimeout(function () {
-                    totalProgress.style.opacity = "0";
-                }, 1500);
-            }
-            dzClosure.queueButtonsState(0);
-        });
-
-        this.on("removedfile", function () {
-            var remaining = dzClosure.files.length;
-            if (remaining === 0 && dropArea) {
-                dropArea.style.display = '';
-            }
-            if (remaining === 0) {
-                dzClosure.queueButtonsState(0);
-            }
-        });
-    },
-
-    accept: function (file, done) {
-        file.doAccept = done;
-        file.doRejection = function () {
-            var startBtn = file.previewElement && file.previewElement.querySelector(".start");
-            var progress = file.previewElement && file.previewElement.querySelector(".dz-progress");
-            if (startBtn) startBtn.style.display = "none";
-            if (progress) progress.style.display = "none";
-            done("Invalid dimensions: image is too small.");
-        };
-    }
-};
-
-var dropzoneOptionsImagesWithCropper = Object.assign(
-    {},
-    dropzoneOptionsImages,
-    {
-        transformFile: function (file, done) {
-            var cropper = new MediaLibraryCropper(this, file, done);
-            cropper.init();
-        }
-    }
-);
-
+import { Dropzone } from 'dropzone';
+import editCrop from './_init-cropper';
 
 export default function createDropzone(element) {
-    const options = Object.assign({}, dropzoneOptionsImagesWithCropper);
+    // Accept either the original jQuery wrapper or a DOM form.
+    const form = element?.nodeType ? element : element?.[0];
+    if (!form || form.dropzone) return form?.dropzone;
 
-    options.acceptedFiles = element.data('accepted_files');
-    options.constraint = {
-        minWidth: parseInt(element.data('min_width'), 10),
-        minHeight: parseInt(element.data('min_height'), 10),
+    const previews = form.querySelector('.dropzone-previews');
+    const previewNode = form.querySelector('.dropzone-file-template');
+    if (!previews || !previewNode) return;
+    const preview = previewNode.cloneNode(true);
+    preview.removeAttribute('id');
+    preview.removeAttribute('style');
+    preview.hidden = false;
+    previewNode.remove();
+
+    const minWidth = Number(form.dataset.min_width) || 0;
+    const minHeight = Number(form.dataset.min_height) || 0;
+    const aspectRatio = Number(form.dataset.aspect_ratio);
+    const modal = form.querySelector('.modal[role="dialog"]') || form;
+    const controls = {
+        start: form.querySelector('.dropzone-actions .start'),
+        cancel: form.querySelector('.dropzone-actions .cancel'),
+        status: form.querySelector('.ml-upload-status'),
+        progress: form.querySelector('.total-progress'),
+        bar: form.querySelector('.total-progress .progress-bar'),
+        percent: form.querySelector('.upload-percent'),
+    };
+    const maxBytes = Number(form.dataset.max_bytes);
+    let reviewing = false;
+
+    const zone = new Dropzone(form, {
+        acceptedFiles: form.dataset.accepted_files || 'image/*',
+        maxFilesize: maxBytes > 0 ? maxBytes / 1048576 : 256,
+        previewTemplate: preview.outerHTML,
+        previewsContainer: previews,
+        clickable: [...form.querySelectorAll('.fileinput-button, button.dz-upload-area')],
+        hiddenInputContainer: form,
+        parallelUploads: 3,
+        autoQueue: false,
+        createImageThumbnails: false,
+        accept(file, done) {
+            const image = new Image();
+            const source = URL.createObjectURL(file);
+            file.mlPreviewUrl = source;
+            image.src = source;
+            image.decode().then(() => {
+                if (!this.files.includes(file)) return;
+                if (image.naturalWidth < minWidth || image.naturalHeight < minHeight) {
+                    done(`Choose an image at least ${minWidth} × ${minHeight} px.`);
+                } else {
+                    done();
+                    this.emit('thumbnail', file, source);
+                }
+            }, () => {
+                if (this.files.includes(file)) done('This file could not be opened as an image.');
+            }).finally(() => update());
+        },
+    });
+
+    const isReady = (file) => file.status === Dropzone.ADDED && file.accepted === true;
+    const labels = {
+        [Dropzone.ADDED]: 'Checking…',
+        [Dropzone.QUEUED]: 'Queued',
+        [Dropzone.UPLOADING]: 'Uploading…',
+        [Dropzone.SUCCESS]: 'Uploaded',
+        [Dropzone.ERROR]: 'Failed',
+        [Dropzone.CANCELED]: 'Canceled',
     };
 
-    const previewNode = element.find(".dropzone-file-template")[0];
-    if (previewNode) {
-        previewNode.id = "";
-        const previewTemplate = previewNode.parentNode.innerHTML;
-        previewNode.parentNode.removeChild(previewNode);
-        options.previewTemplate = previewTemplate;
+    function update() {
+        const ready = zone.files.filter(isReady).length;
+        const active = zone.getActiveFiles().length;
+        const uploaded = zone.files.filter((file) => file.status === Dropzone.SUCCESS).length;
+        const failed = zone.files.filter((file) => file.status === Dropzone.ERROR).length;
+        if (controls.start) controls.start.disabled = !ready || reviewing;
+        if (controls.cancel) controls.cancel.disabled = reviewing || zone.files.length === uploaded;
+        if (controls.progress) {
+            controls.progress.hidden = !active;
+            controls.progress.style.opacity = active ? '1' : '0';
+        }
+        if (controls.status) {
+            const summary = [
+                ready && `${ready} ready to crop`,
+                active && `${active} uploading or queued`,
+                uploaded && `${uploaded} uploaded`,
+                failed && `${failed} failed`,
+            ].filter(Boolean).join(' · ');
+            const status = reviewing ? 'Reviewing crops…' : summary || (zone.files.length ? 'Checking images…' : 'No images selected.');
+            if (controls.status.textContent !== status) controls.status.textContent = status;
+        }
+        for (const file of zone.files) {
+            const card = file.previewElement;
+            const start = card?.querySelector('.start');
+            const state = card?.querySelector('.ml-file-status');
+            if (start) {
+                start.disabled = reviewing || !isReady(file);
+                start.hidden = file.status !== Dropzone.ADDED;
+            }
+            if (state) state.textContent = isReady(file) ? 'Ready to crop' : labels[file.status] || '';
+        }
     }
 
-    options.previewsContainer = element.find(".dropzone-previews")[0];
-    options.clickable = element.find(".fileinput-button")[0];
-    options.url = element.attr('action');
+    function setProgress(progress) {
+        if (controls.bar) {
+            controls.bar.style.width = `${progress}%`;
+            controls.bar.setAttribute('aria-valuenow', String(Math.round(progress)));
+        }
+        if (controls.percent) controls.percent.textContent = `${Math.round(progress)}%`;
+    }
 
-    return new Dropzone(element[0], options);
+    async function start(files) {
+        if (reviewing) return;
+        reviewing = true;
+        update();
+        const focused = document.activeElement;
+        let errorMessage = '';
+        try {
+            if (typeof HTMLDialogElement === 'undefined' || !HTMLDialogElement.prototype.showModal) {
+                throw new Error('Your browser does not support the crop editor. Please use a current browser.');
+            }
+            for (const file of files) {
+                if (!zone.files.includes(file) || !isReady(file)) continue;
+                const crop = await editCrop(file, modal, {
+                    minWidth, minHeight, aspectRatio: Number.isFinite(aspectRatio) && aspectRatio > 0 ? aspectRatio : null,
+                });
+                if (!zone.files.includes(file)) continue;
+                if (!crop) continue;
+                if (crop.data) {
+                    file.customPostParams = {
+                        ...file.customPostParams,
+                        cropper: new URLSearchParams(crop.data).toString(),
+                    };
+                    zone.emit('thumbnail', file, crop.preview);
+                }
+                if (!zone.getActiveFiles().length) setProgress(0);
+                zone.enqueueFile(file);
+            }
+        } catch (error) {
+            console.error('[MediaLibrary] Could not open the crop editor', error);
+            errorMessage = error.message || 'Could not open the crop editor.';
+        } finally {
+            reviewing = false;
+            update();
+            if (errorMessage && controls.status) controls.status.textContent = errorMessage;
+            if (modal.contains(document.activeElement) || document.activeElement === document.body) {
+                (focused?.isConnected && !focused.disabled && !focused.hidden ? focused
+                    : modal.querySelector('.ml-done, .fileinput-button'))?.focus();
+            }
+        }
+    }
+
+    form.addEventListener('submit', (event) => event.preventDefault());
+    controls.start?.addEventListener('click', () => start(zone.files.filter(isReady)));
+    controls.cancel?.addEventListener('click', () => {
+        for (const file of [...zone.files]) {
+            if (file.status !== Dropzone.SUCCESS) zone.removeFile(file);
+        }
+    });
+
+    zone.on('addedfile', (file) => {
+        file.previewElement?.querySelector('.start')?.addEventListener('click', () => start([file]));
+        update();
+    });
+    zone.on('removedfile', (file) => {
+        if (file.mlPreviewUrl) URL.revokeObjectURL(file.mlPreviewUrl);
+        update();
+    });
+    zone.on('totaluploadprogress', setProgress);
+    zone.on('processing', update);
+    zone.on('sending', (file, xhr, formData) => {
+        for (const [name, value] of Object.entries(file.customPostParams || {})) formData.append(name, value);
+    });
+    zone.on('success', () => {
+        form.dataset.mlUploaded = 'true';
+        update();
+    });
+    zone.on('error', (file) => {
+        const message = file.previewElement?.querySelector('.dz-error-message');
+        if (message) {
+            message.hidden = false;
+            message.style.display = '';
+        }
+        update();
+    });
+    zone.on('complete', update);
+    update();
+    return zone;
 }
